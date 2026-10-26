@@ -1,0 +1,10 @@
+{
+  "name": "zia-flat-lite",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "check": "node scripts/build.cjs --check && node --check zia-flat.uc.js",
+    "test": "node --test test/*.test.cjs"
+  }
+}

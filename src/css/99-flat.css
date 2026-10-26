@@ -1,0 +1,85 @@
+/* Local flat variant. Chrome stylesheet only: does not enter web documents.
+   Keep layout, colour, focus outlines and functional icon masks intact. */
+:root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
+  --zia-card-radius: 0px !important;
+  --zia-card-radius-base: 0px !important;
+  --zia-card-shadow: none !important;
+  --zia-essential-radius: 0px !important;
+  --zia-tab-radius: 0px !important;
+  --zia-close-radius: 0px !important;
+  --zia-tab-card-radius: 0px !important;
+  --zia-pop-row-radius: 0px !important;
+  --zia-urlbar-radius: 0px !important;
+  --zia-media-radius: 0px !important;
+  --zia-active-glow-color: transparent !important;
+  --zia-shine-layers: none !important;
+  --zia-tab-shine-layers: none !important;
+
+  & *, & *::before, & *::after {
+    border-radius: 0 !important;
+    corner-shape: round !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Remove the nested page-surface clips, including Glance and splits. */
+  & #tabbrowser-tabpanels :is(.browserSidebarContainer, .browserStack, browser) {
+    clip-path: none !important;
+  }
+
+  /* Only remove decorative masks; icon masks still draw functional glyphs. */
+  & .tabbrowser-tab[zen-essential] > .tab-stack > .tab-background {
+    mask: none !important;
+  }
+  & .tabbrowser-tab[zen-essential] > .tab-stack > .tab-background::after,
+  & .zia-glow {
+    display: none !important;
+  }
+}
+
+/* Artwork has a Windows clip; its progress outline is an SVG path, not a
+   CSS rounded border. Square both without removing playback progress. */
+:root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
+  & #zen-media-controls-toolbar .zen-media-focus-button :is(.toolbarbutton-icon, image) {
+    clip-path: none !important;
+    border-radius: 0 !important;
+  }
+  & #zen-media-controls-toolbar .zia-ring :is(.zia-ring-track, .zia-ring-fill) {
+    d: path("M23 1 L45 1 L45 45 L1 45 L1 1 Z") !important;
+    stroke-linejoin: miter !important;
+    stroke-linecap: butt !important;
+  }
+  & #zen-media-controls-toolbar .zen-media-card > .zen-media-main-vbox::after {
+    content: none !important;
+    mask: none !important;
+  }
+}
+
+/* Flat drag targets stay still; only the active colour indicates the side. */
+:root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
+  & #zia-split-drop .zia-split-zone {
+    --zia-zone-w: 200px !important;
+    --zia-zone-h: 336px !important;
+    translate: 0 -50% !important;
+    scale: 1 !important;
+    transition: opacity 0.12s ease, background-color 0.12s ease !important;
+  }
+  & #zia-split-drop :is(.zia-split-zone-icon, .zia-split-zone-label) {
+    animation: none !important;
+    transition: none !important;
+    scale: 1 !important;
+  }
+  & #zia-split-drag-picture {
+    transition: none !important;
+    will-change: translate;
+  }
+  & #zia-drag-thumb {
+    will-change: transform;
+  }
+  & #zia-drag-thumb > * {
+    animation: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
