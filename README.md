@@ -4,6 +4,8 @@ Une surcouche CSS pour **Zia dans Zen Browser** : coins carres, sans ombres,
 halos ni flou d'arriere-plan. Les couleurs, espacements et fonctions de Zia
 sont conserves. Les cartes de depot gauche/droite restent fixes et le flou de
 transition de la vignette de drag est retire.
+La pochette du lecteur media et son contour de progression sont carres aussi ;
+l'indication de progression reste fonctionnelle.
 
 ## Installation avec Sine
 
