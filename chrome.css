@@ -1,3 +1,4679 @@
+/* Zia: built from src/css by scripts/build.sh. Edit the parts in src/css, not this file. */
+
+:root {
+  /* A spring with a slight overshoot, for things that open and close: about
+   * 3px past on the music player's 60px. Folders have their own, a little
+   * gentler (zia.uc.js). */
+  --zia-spring: cubic-bezier(0.3, 1.4, 0.5, 1);
+  --zia-spring-time: 0.42s;
+  --zia-fallback-bg: #121212;
+  --zia-page-loading-bg: #000;
+  --zia-separator: rgba(255, 255, 255, 0.1);
+  --zia-urlbar-hover-bg: rgba(0, 0, 0, 0.2);
+  --zia-urlbar-open-bg: #2c2c2c;
+  --zia-pop-row-height: 36px;
+  --zia-pop-row-gap: 4px;
+  --zia-pop-row-inset: 8px;
+  --zia-pop-row-radius: 8px;
+  --zia-pop-list-pad: 6px;
+  --zia-pop-bottom-trim: 10px;
+  --zia-loading-color: rgb(90, 185, 245);
+  --zia-urlbar-radius: 6px;
+  --zia-urlbar-open-offset: 0px;
+  --zia-urlbar-open-top: 0px;
+  /* Zen stores this already multiplied by --zen-squircle-value, because its
+     corners are a superellipse. Zia's corners are circular, so that stretch
+     is divided back out. With page rounding on, the card uses a fixed
+     length instead (04). */
+  /* (the page card's corner; edge to edge sets the card's to 0, while the
+     compact sidebar keeps this one, 16-compact-mode) */
+  --zia-card-radius-base: calc(var(--zen-native-inner-radius, 10.5px) / var(--zen-squircle-value, 1));
+  --zia-card-radius: var(--zia-card-radius-base);
+
+  /* the fine shine round essentials, folders and the Library's tiles, as
+     Dia's: as bright along the sides as the top and bottom, and fading
+     almost away into the corners (measured off Dia's: the corner about
+     half the sides') */
+  --zia-shine-layers:
+    linear-gradient(to right, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.15) 35%, rgba(255, 255, 255, 0.15) 65%, rgba(255, 255, 255, 0.02)),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.15) 35%, rgba(255, 255, 255, 0.15) 65%, rgba(255, 255, 255, 0.02));
+
+  /* a row's (a folder's box): as Dia's rows, lit along its length only,
+     fading out round each corner, its short ends dark (the colour here; the
+     shape where it's used, 06) */
+  --zia-shine-row-ink: rgba(255, 255, 255, 0.12);
+
+  --zia-tab-shine-layers:
+    linear-gradient(to bottom right, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.15) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.15) 75%, rgba(255, 255, 255, 0.26));
+  --zia-essential-min-width: 54px;
+  --zia-essential-height: 41px;
+  --zia-essential-inner-tighten: 1;
+  --zia-essential-radius: 12px;
+  --zia-essential-gap: 3px;
+  --zia-essential-bottom-space: 8px;
+  --zia-essential-bg: rgba(255, 255, 255, 0.13);
+  --zia-tab-height: 34px;
+  --zia-tab-gap: 2px;
+  --zia-tab-radius: 9.5px;
+  --zia-close-size: 22px;
+  --zia-close-radius: 6px;
+  --zia-close-hover-bg: rgba(255, 255, 255, 0.1);
+  --zia-folder-mark-opacity: 0.55;
+  --zia-folder-hover-bg: rgba(255, 255, 255, 0.1);
+
+  --zia-fc-white: #fbfbfb;
+  --zia-fc-green: #008b5d;
+  --zia-fc-blue: #007fbd;
+  --zia-fc-purple: #625da5;
+  --zia-fc-amber: #c98400;
+  --zia-fc-pink: #bd556b;
+  --zia-fc-red: #cc4a55;
+  --zia-fc-orange: #c95125;
+
+  --zia-folder-wash: 31%;
+  --zia-folder-tint: 53%;
+  --zia-folder-name-tint: 77%;
+  --zia-folder-name-tint-hover: 38%;
+  --zia-tab-hover-bg: rgba(255, 255, 255, 0.115);
+  --zia-active-glow-blur: 20px;
+  --zia-active-glow-spread: 4px;
+  --zia-active-glow-reach: 4px;
+  --zia-active-glow-color: rgba(255, 255, 255, 0.05);
+  --zia-top-row-space: 6.5px;
+  --zia-bottom-row-space: 6px;
+  --zia-tab-weight: 400;
+  --zia-folder-weight: 500;
+
+  --zia-tab-card-bg: rgb(38, 38, 38);
+  --zia-tab-card-sub: rgba(255, 255, 255, 0.55);
+  --zia-tab-card-radius: 13px;
+  --zia-tab-card-width: 230px;
+  --zia-media-card-base: light-dark(rgb(235, 235, 235), #1b1b1b);
+  --zia-split-gap: 5px;
+
+  /* Zia's squircle: on essentials, cards, pop-ups and small buttons, one
+     shape (wherever a part sets corner-shape: var(--zia-squircle)). Dia's,
+     fitted to the edge of its essentials pixel by pixel: a true squircle
+     (an exponent of about 3.8, superellipse(1.93)), its corner running
+     half as far again along each side as a round one of the same depth
+     (18px on a 40px tile, where Zia's round corners are 12px). So each
+     squircle's radius is its round radius grown by that much (x1.5)
+     (--zia-squircle-grow), cutting in as deep at the corner's middle but
+     easing in further. Icon buttons in the toolbars, whose radii are
+     Zen's, keep the softer one (--zia-squircle-soft). */
+  --zia-squircle: superellipse(1.93);
+  --zia-squircle-grow: 1.5;
+  --zia-squircle-soft: superellipse(1.35);
+  /* Dia's folder rows, fitted the same way: only a touch squarer than a
+     circle, superellipse(1.3), over a 13.8px corner on a 34px row (a
+     tab's 9.5px corner grown by 1.45) */
+  --zia-squircle-row: superellipse(1.3);
+  --zia-squircle-row-grow: 1.45;
+  /* the corners of the masks that cut shines and tiles to those squircles
+     (each a corner's quarter, stretched to its radius) */
+  --zia-row-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 0.00 L0.00 0.00 L0.06 7.21 L0.25 12.65 L0.56 17.57 L1.00 22.16 L1.56 26.52 L2.25 30.68 L3.06 34.67 L3.99 38.52 L5.05 42.24 L6.23 45.83 L7.53 49.30 L8.95 52.65 L10.49 55.89 L12.15 59.02 L13.92 62.04 L15.81 64.95 L17.82 67.74 L19.95 70.43 L22.18 73.00 L24.54 75.46 L27.00 77.82 L29.57 80.05 L32.26 82.18 L35.05 84.19 L37.96 86.08 L40.98 87.85 L44.11 89.51 L47.35 91.05 L50.70 92.47 L54.17 93.77 L57.76 94.95 L61.48 96.01 L65.33 96.94 L69.32 97.75 L73.48 98.44 L77.84 99.00 L82.43 99.44 L87.35 99.75 L92.79 99.94 L100.00 100.00 Z'/%3E%3C/svg%3E");
+  --zia-row-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 0.00 L100.00 0.00 L99.94 7.21 L99.75 12.65 L99.44 17.57 L99.00 22.16 L98.44 26.52 L97.75 30.68 L96.94 34.67 L96.01 38.52 L94.95 42.24 L93.77 45.83 L92.47 49.30 L91.05 52.65 L89.51 55.89 L87.85 59.02 L86.08 62.04 L84.19 64.95 L82.18 67.74 L80.05 70.43 L77.82 73.00 L75.46 75.46 L73.00 77.82 L70.43 80.05 L67.74 82.18 L64.95 84.19 L62.04 86.08 L59.02 87.85 L55.89 89.51 L52.65 91.05 L49.30 92.47 L45.83 93.77 L42.24 94.95 L38.52 96.01 L34.67 96.94 L30.68 97.75 L26.52 98.44 L22.16 99.00 L17.57 99.44 L12.65 99.75 L7.21 99.94 L0.00 100.00 Z'/%3E%3C/svg%3E");
+  --zia-row-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 100.00 L0.00 100.00 L0.06 92.79 L0.25 87.35 L0.56 82.43 L1.00 77.84 L1.56 73.48 L2.25 69.32 L3.06 65.33 L3.99 61.48 L5.05 57.76 L6.23 54.17 L7.53 50.70 L8.95 47.35 L10.49 44.11 L12.15 40.98 L13.92 37.96 L15.81 35.05 L17.82 32.26 L19.95 29.57 L22.18 27.00 L24.54 24.54 L27.00 22.18 L29.57 19.95 L32.26 17.82 L35.05 15.81 L37.96 13.92 L40.98 12.15 L44.11 10.49 L47.35 8.95 L50.70 7.53 L54.17 6.23 L57.76 5.05 L61.48 3.99 L65.33 3.06 L69.32 2.25 L73.48 1.56 L77.84 1.00 L82.43 0.56 L87.35 0.25 L92.79 0.06 L100.00 0.00 Z'/%3E%3C/svg%3E");
+  --zia-row-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 100.00 L100.00 100.00 L99.94 92.79 L99.75 87.35 L99.44 82.43 L99.00 77.84 L98.44 73.48 L97.75 69.32 L96.94 65.33 L96.01 61.48 L94.95 57.76 L93.77 54.17 L92.47 50.70 L91.05 47.35 L89.51 44.11 L87.85 40.98 L86.08 37.96 L84.19 35.05 L82.18 32.26 L80.05 29.57 L77.82 27.00 L75.46 24.54 L73.00 22.18 L70.43 19.95 L67.74 17.82 L64.95 15.81 L62.04 13.92 L59.02 12.15 L55.89 10.49 L52.65 8.95 L49.30 7.53 L45.83 6.23 L42.24 5.05 L38.52 3.99 L34.67 3.06 L30.68 2.25 L26.52 1.56 L22.16 1.00 L17.57 0.56 L12.65 0.25 L7.21 0.06 L0.00 0.00 Z'/%3E%3C/svg%3E");
+  --zia-sq-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 0.00 L0.00 0.00 L0.04 18.28 L0.16 26.29 L0.36 32.51 L0.65 37.77 L1.01 42.41 L1.46 46.60 L1.99 50.44 L2.60 53.99 L3.29 57.30 L4.07 60.40 L4.93 63.32 L5.88 66.07 L6.91 68.67 L8.03 71.13 L9.23 73.46 L10.53 75.66 L11.91 77.75 L13.39 79.73 L14.96 81.60 L16.63 83.37 L18.40 85.04 L20.27 86.61 L22.25 88.09 L24.34 89.47 L26.54 90.77 L28.87 91.97 L31.33 93.09 L33.93 94.12 L36.68 95.07 L39.60 95.93 L42.70 96.71 L46.01 97.40 L49.56 98.01 L53.40 98.54 L57.59 98.99 L62.23 99.35 L67.49 99.64 L73.71 99.84 L81.72 99.96 L100.00 100.00 Z'/%3E%3C/svg%3E");
+  --zia-sq-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 0.00 L100.00 0.00 L99.96 18.28 L99.84 26.29 L99.64 32.51 L99.35 37.77 L98.99 42.41 L98.54 46.60 L98.01 50.44 L97.40 53.99 L96.71 57.30 L95.93 60.40 L95.07 63.32 L94.12 66.07 L93.09 68.67 L91.97 71.13 L90.77 73.46 L89.47 75.66 L88.09 77.75 L86.61 79.73 L85.04 81.60 L83.37 83.37 L81.60 85.04 L79.73 86.61 L77.75 88.09 L75.66 89.47 L73.46 90.77 L71.13 91.97 L68.67 93.09 L66.07 94.12 L63.32 95.07 L60.40 95.93 L57.30 96.71 L53.99 97.40 L50.44 98.01 L46.60 98.54 L42.41 98.99 L37.77 99.35 L32.51 99.64 L26.29 99.84 L18.28 99.96 L0.00 100.00 Z'/%3E%3C/svg%3E");
+  --zia-sq-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 100.00 L0.00 100.00 L0.04 81.72 L0.16 73.71 L0.36 67.49 L0.65 62.23 L1.01 57.59 L1.46 53.40 L1.99 49.56 L2.60 46.01 L3.29 42.70 L4.07 39.60 L4.93 36.68 L5.88 33.93 L6.91 31.33 L8.03 28.87 L9.23 26.54 L10.53 24.34 L11.91 22.25 L13.39 20.27 L14.96 18.40 L16.63 16.63 L18.40 14.96 L20.27 13.39 L22.25 11.91 L24.34 10.53 L26.54 9.23 L28.87 8.03 L31.33 6.91 L33.93 5.88 L36.68 4.93 L39.60 4.07 L42.70 3.29 L46.01 2.60 L49.56 1.99 L53.40 1.46 L57.59 1.01 L62.23 0.65 L67.49 0.36 L73.71 0.16 L81.72 0.04 L100.00 0.00 Z'/%3E%3C/svg%3E");
+  --zia-sq-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 100.00 L100.00 100.00 L99.96 81.72 L99.84 73.71 L99.64 67.49 L99.35 62.23 L98.99 57.59 L98.54 53.40 L98.01 49.56 L97.40 46.01 L96.71 42.70 L95.93 39.60 L95.07 36.68 L94.12 33.93 L93.09 31.33 L91.97 28.87 L90.77 26.54 L89.47 24.34 L88.09 22.25 L86.61 20.27 L85.04 18.40 L83.37 16.63 L81.60 14.96 L79.73 13.39 L77.75 11.91 L75.66 10.53 L73.46 9.23 L71.13 8.03 L68.67 6.91 L66.07 5.88 L63.32 4.93 L60.40 4.07 L57.30 3.29 L53.99 2.60 L50.44 1.99 L46.60 1.46 L42.41 1.01 L37.77 0.65 L32.51 0.36 L26.29 0.16 L18.28 0.04 L0.00 0.00 Z'/%3E%3C/svg%3E");
+  --zia-folder-radius: var(--zia-tab-radius);
+  --zia-glass-button-radius: var(--zia-tab-radius);
+  --zia-pop-radius: 16.5px;
+  --zia-split-card-radius: 14px;
+
+  --zia-split-backdrop: rgb(23, 23, 23);
+  /* (the music player a deeper shade of the sidebar than the selected tab) */
+  --zia-media-bg: rgba(0, 0, 0, 0.25);
+  --zia-media-card-height: 64px;
+  --zia-media-card-height-open: 124px;
+  --zia-media-radius: 12.5px;
+  --zia-media-ring-size: 46px;
+  --zia-media-art-size: 38px;
+  --zia-toolbar-end-gap: 5px;
+  --zia-space-name-nudge: 4px;
+  --zia-space-name-offset: 1.5px;
+  --zia-space-pill-height: 34px;
+  --zia-space-pill-bg: rgba(255, 255, 255, 0.16);
+  --zia-space-icon-gap: 8px;
+  --zia-folder-icon-offset: 0px;
+  --zia-folder-mark-color: rgba(0, 0, 0, 0.75);
+  --zia-text-size: calc(1.22rem - 0.4px);
+  --zia-shine-width: 0.5px;
+  --zia-essential-max-width: 120px;
+  --zia-card-gap: 6px;
+  --zia-card-top-gap: 6px;
+  --zia-toolbar-height: 40px;
+  --zia-urlbar-height: 31px;
+  --zia-active-tab-bg: rgba(0, 0, 0, 0.1);
+  --zia-active-tab-bg-folder: rgba(0, 0, 0, 0.4);
+  --zia-space-name-tint: 25%;
+  --zia-card-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 1px 4px rgba(0, 0, 0, 0.18);
+  --zia-hover-card-shadow: none;
+  --zia-color-fade: 0.15s;
+  /* the toolbar's ink, with a faint touch of the site's hue (zia.uc.js
+     sets the hue and strength, and darkens it on a bright colour it'd
+     vanish on; without them it's the plain grey) */
+  --zia-light-ink: hsl(var(--zia-ink-h, 240) var(--zia-ink-s, 3.5%) var(--zia-light-ink-l, 40%));
+}
+
+/* A Zen whose Firefox can't draw a squircle (corner-shape) draws every
+   corner round: there each corner keeps its round radius (no growing), and
+   the masks cut round corners to match, so the shines and tiles fit. */
+@supports not (corner-shape: round) {
+  :root:not(#zia-none) {
+    --zia-squircle-grow: 1;
+    --zia-squircle-row-grow: 1;
+    --zia-sq-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 100.00 L0.00 100.00 L0.08 96.07 L0.31 92.15 L0.69 88.25 L1.23 84.36 L1.92 80.49 L2.76 76.66 L3.75 72.86 L4.89 69.10 L6.18 65.39 L7.61 61.73 L9.19 58.13 L10.90 54.60 L12.75 51.14 L14.74 47.75 L16.85 44.44 L19.10 41.22 L21.47 38.09 L23.96 35.06 L26.57 32.12 L29.29 29.29 L32.12 26.57 L35.06 23.96 L38.09 21.47 L41.22 19.10 L44.44 16.85 L47.75 14.74 L51.14 12.75 L54.60 10.90 L58.13 9.19 L61.73 7.61 L65.39 6.18 L69.10 4.89 L72.86 3.75 L76.66 2.76 L80.49 1.92 L84.36 1.23 L88.25 0.69 L92.15 0.31 L96.07 0.08 L100.00 0.00 Z'/%3E%3C/svg%3E");
+    --zia-sq-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 100.00 L100.00 100.00 L99.92 96.07 L99.69 92.15 L99.31 88.25 L98.77 84.36 L98.08 80.49 L97.24 76.66 L96.25 72.86 L95.11 69.10 L93.82 65.39 L92.39 61.73 L90.81 58.13 L89.10 54.60 L87.25 51.14 L85.26 47.75 L83.15 44.44 L80.90 41.22 L78.53 38.09 L76.04 35.06 L73.43 32.12 L70.71 29.29 L67.88 26.57 L64.94 23.96 L61.91 21.47 L58.78 19.10 L55.56 16.85 L52.25 14.74 L48.86 12.75 L45.40 10.90 L41.87 9.19 L38.27 7.61 L34.61 6.18 L30.90 4.89 L27.14 3.75 L23.34 2.76 L19.51 1.92 L15.64 1.23 L11.75 0.69 L7.85 0.31 L3.93 0.08 L0.00 0.00 Z'/%3E%3C/svg%3E");
+    --zia-sq-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 0.00 L0.00 0.00 L0.08 3.93 L0.31 7.85 L0.69 11.75 L1.23 15.64 L1.92 19.51 L2.76 23.34 L3.75 27.14 L4.89 30.90 L6.18 34.61 L7.61 38.27 L9.19 41.87 L10.90 45.40 L12.75 48.86 L14.74 52.25 L16.85 55.56 L19.10 58.78 L21.47 61.91 L23.96 64.94 L26.57 67.88 L29.29 70.71 L32.12 73.43 L35.06 76.04 L38.09 78.53 L41.22 80.90 L44.44 83.15 L47.75 85.26 L51.14 87.25 L54.60 89.10 L58.13 90.81 L61.73 92.39 L65.39 93.82 L69.10 95.11 L72.86 96.25 L76.66 97.24 L80.49 98.08 L84.36 98.77 L88.25 99.31 L92.15 99.69 L96.07 99.92 L100.00 100.00 Z'/%3E%3C/svg%3E");
+    --zia-sq-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 0.00 L100.00 0.00 L99.92 3.93 L99.69 7.85 L99.31 11.75 L98.77 15.64 L98.08 19.51 L97.24 23.34 L96.25 27.14 L95.11 30.90 L93.82 34.61 L92.39 38.27 L90.81 41.87 L89.10 45.40 L87.25 48.86 L85.26 52.25 L83.15 55.56 L80.90 58.78 L78.53 61.91 L76.04 64.94 L73.43 67.88 L70.71 70.71 L67.88 73.43 L64.94 76.04 L61.91 78.53 L58.78 80.90 L55.56 83.15 L52.25 85.26 L48.86 87.25 L45.40 89.10 L41.87 90.81 L38.27 92.39 L34.61 93.82 L30.90 95.11 L27.14 96.25 L23.34 97.24 L19.51 98.08 L15.64 98.77 L11.75 99.31 L7.85 99.69 L3.93 99.92 L0.00 100.00 Z'/%3E%3C/svg%3E");
+    --zia-row-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 100.00 L0.00 100.00 L0.08 96.07 L0.31 92.15 L0.69 88.25 L1.23 84.36 L1.92 80.49 L2.76 76.66 L3.75 72.86 L4.89 69.10 L6.18 65.39 L7.61 61.73 L9.19 58.13 L10.90 54.60 L12.75 51.14 L14.74 47.75 L16.85 44.44 L19.10 41.22 L21.47 38.09 L23.96 35.06 L26.57 32.12 L29.29 29.29 L32.12 26.57 L35.06 23.96 L38.09 21.47 L41.22 19.10 L44.44 16.85 L47.75 14.74 L51.14 12.75 L54.60 10.90 L58.13 9.19 L61.73 7.61 L65.39 6.18 L69.10 4.89 L72.86 3.75 L76.66 2.76 L80.49 1.92 L84.36 1.23 L88.25 0.69 L92.15 0.31 L96.07 0.08 L100.00 0.00 Z'/%3E%3C/svg%3E");
+    --zia-row-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 100.00 L100.00 100.00 L99.92 96.07 L99.69 92.15 L99.31 88.25 L98.77 84.36 L98.08 80.49 L97.24 76.66 L96.25 72.86 L95.11 69.10 L93.82 65.39 L92.39 61.73 L90.81 58.13 L89.10 54.60 L87.25 51.14 L85.26 47.75 L83.15 44.44 L80.90 41.22 L78.53 38.09 L76.04 35.06 L73.43 32.12 L70.71 29.29 L67.88 26.57 L64.94 23.96 L61.91 21.47 L58.78 19.10 L55.56 16.85 L52.25 14.74 L48.86 12.75 L45.40 10.90 L41.87 9.19 L38.27 7.61 L34.61 6.18 L30.90 4.89 L27.14 3.75 L23.34 2.76 L19.51 1.92 L15.64 1.23 L11.75 0.69 L7.85 0.31 L3.93 0.08 L0.00 0.00 Z'/%3E%3C/svg%3E");
+    --zia-row-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 0.00 L0.00 0.00 L0.08 3.93 L0.31 7.85 L0.69 11.75 L1.23 15.64 L1.92 19.51 L2.76 23.34 L3.75 27.14 L4.89 30.90 L6.18 34.61 L7.61 38.27 L9.19 41.87 L10.90 45.40 L12.75 48.86 L14.74 52.25 L16.85 55.56 L19.10 58.78 L21.47 61.91 L23.96 64.94 L26.57 67.88 L29.29 70.71 L32.12 73.43 L35.06 76.04 L38.09 78.53 L41.22 80.90 L44.44 83.15 L47.75 85.26 L51.14 87.25 L54.60 89.10 L58.13 90.81 L61.73 92.39 L65.39 93.82 L69.10 95.11 L72.86 96.25 L76.66 97.24 L80.49 98.08 L84.36 98.77 L88.25 99.31 L92.15 99.69 L96.07 99.92 L100.00 100.00 Z'/%3E%3C/svg%3E");
+    --zia-row-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0.00 0.00 L100.00 0.00 L99.92 3.93 L99.69 7.85 L99.31 11.75 L98.77 15.64 L98.08 19.51 L97.24 23.34 L96.25 27.14 L95.11 30.90 L93.82 34.61 L92.39 38.27 L90.81 41.87 L89.10 45.40 L87.25 48.86 L85.26 52.25 L83.15 55.56 L80.90 58.78 L78.53 61.91 L76.04 64.94 L73.43 67.88 L70.71 70.71 L67.88 73.43 L64.94 76.04 L61.91 78.53 L58.78 80.90 L55.56 83.15 L52.25 85.26 L48.86 87.25 L45.40 89.10 L41.87 90.81 L38.27 92.39 L34.61 93.82 L30.90 95.11 L27.14 96.25 L23.34 97.24 L19.51 98.08 L15.64 98.77 L11.75 99.31 L7.85 99.69 L3.93 99.92 L0.00 100.00 Z'/%3E%3C/svg%3E");
+  }
+}
+
+/* Zen paints superellipse(var(--zen-squircle-value)) onto every element
+   (1.3 on macOS, 2.3 on Windows). A Zia length drawn with that curve looks
+   squarer on Windows than the same length on macOS. Zia's corners are
+   circular, but for its squircles (--zia-squircle): those have to beat
+   this rule, so they're !important, with a selector at least as specific
+   (an id, two classes, or :root and a class). Menus, panels and dialogs
+   keep Zen's curve, because their radii are stretched for it. */
+:root,
+:root *:not(menupopup, menupopup *, panel, panel *, dialog, dialog *),
+:root *:not(menupopup, menupopup *, panel, panel *, dialog, dialog *)::before,
+:root *:not(menupopup, menupopup *, panel, panel *, dialog, dialog *)::after {
+  corner-shape: round !important;
+}
+
+/* Every small icon button's background, in toolbars and the sidebar (the
+   workspaces' icons among them), is Zia's squircle */
+:root :is(toolbarbutton, toolbarbutton > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack, .toolbarbutton-text)):not(menupopup *, panel *, dialog *) {
+  corner-shape: var(--zia-squircle-soft) !important;
+}
+
+/* The fine edge round essentials, folders and cards is half a pixel: one
+   screen pixel on a 2x display. On a 1x one (most Windows screens) half a
+   pixel rounded to nothing and the edge was gone, so there it's a whole one,
+   the same one screen pixel. */
+@media (max-resolution: 1.5dppx) {
+  :root {
+    --zia-shine-width: 1px;
+  }
+}
+
+/* Windows draws the sidebar over a flatter, darker backdrop than macOS's
+   translucent one, so the same folder colours read far more vivid there;
+   they get a lighter wash and hover tint. */
+@media (-moz-platform: windows) {
+  :root {
+    --zia-folder-wash: 20%;
+    --zia-folder-tint: 34%;
+  }
+}
+
+/* Transparent pages show the window through, so split view mustn't lay an opaque tray under them */
+@media -moz-pref("browser.tabs.allow_transparent_browser") {
+  :root {
+    --zia-split-backdrop: transparent;
+  }
+}
+
+:root[zia-site-dark="true"] {
+  --zia-urlbar-hover-bg: rgba(255, 255, 255, 0.09);
+}
+
+:root[zia-site-light="true"] {
+  --zia-separator: rgba(0, 0, 0, 0.12);
+  --zia-urlbar-hover-bg: rgba(0, 0, 0, 0.06);
+}
+
+/* The sidebar's text size, an option: a touch or two smaller, for a
+   narrow sidebar, or a touch larger (read straight off the option, so it
+   takes as soon as it's changed, with or without zia.uc.js) */
+
+:root:not([zen-little-window="true"]):not([inDOMFullscreen="true"]):not([popup-window]) {
+  & #zen-appcontent-wrapper {
+    margin: var(--zia-card-top-gap) var(--zia-card-gap) var(--zia-card-gap) 0 !important;
+    border-radius: var(--zia-card-radius) !important;
+    background: transparent !important;
+    box-shadow: var(--zia-card-shadow) !important;
+    border: none !important;
+    outline: none !important;
+  }
+
+  &:is([zen-compact-mode="true"], [zen-right-side="true"]) #zen-appcontent-wrapper {
+    margin-left: var(--zia-card-gap) !important;
+  }
+
+  /* With the sidebar on the right, the page leaves no gap of its own beside
+     it, as it doesn't on the left: the sidebar's own padding is the gap, so
+     the tabs sit as far from the page as from the window's edge */
+  &[zen-right-side="true"]:not([zen-compact-mode="true"]) #zen-appcontent-wrapper {
+    margin-right: 0 !important;
+  }
+
+  & :is(#zen-appcontent-wrapper, #zen-appcontent-navbar-wrapper, #tabbrowser-tabpanels .browserSidebarContainer, #tabbrowser-tabpanels .browserStack, #tabbrowser-tabpanels browser) {
+    corner-shape: round !important;
+  }
+
+  & #zen-tabbox-wrapper {
+    margin: 0 !important;
+  }
+
+  & #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+    /* no white wash over a see-through page (an empty tab): Zen's glaze left it
+       a shade lighter than the toolbar and the sidebar, the same window colour */
+    --zen-transparent-browser-background: transparent !important;
+    border-radius: 0 0 var(--zia-card-radius) var(--zia-card-radius) !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+  }
+
+  & #tabbrowser-tabpanels :is(.browserSidebarContainer, .browserStack, browser) {
+    clip-path: inset(0 round 0 0 var(--zia-card-radius) var(--zia-card-radius));
+  }
+
+  & #tabbrowser-tabpanels browser[type="content"]:not([transparent="true"]) {
+    background: var(--zia-page-loading-bg) !important;
+  }
+
+  /* While a sidebar slides in or out, the page widens or narrows a few
+     frames before the site redraws at its new size, and the strip in
+     between showed this black: it takes the site's own colour then, so
+     the wait doesn't show (the tab sidebar's slide, and the Bookmarks or
+     History panel's) */
+  &:is([zen-compact-animating], [zia-panel-sliding]) #tabbrowser-tabpanels browser[type="content"]:not([transparent="true"]) {
+    background: var(--zia-site-bg, var(--zia-page-loading-bg)) !important;
+  }
+
+  & #zen-appcontent-navbar-wrapper {
+    background-color: var(--zia-site-bg, var(--zia-fallback-bg)) !important;
+    border-radius: var(--zia-card-radius) var(--zia-card-radius) 0 0 !important;
+    border-bottom: 1px solid var(--zia-separator) !important;
+    transition: background-color var(--zia-color-fade) ease, border-color var(--zia-color-fade) ease !important;
+  }
+
+  &[zia-color-snap="true"] #zen-appcontent-navbar-wrapper {
+    transition: none !important;
+  }
+
+  & #nav-bar {
+    --zen-toolbar-height: var(--zia-toolbar-height) !important;
+    --urlbar-height: var(--zia-urlbar-height) !important;
+  }
+
+  /* (the toolbar's own spacing, for the toolbar above the page: with Zen's
+     single toolbar the row sits in the sidebar, and it pushed the address
+     bar in from the sidebar's edges, past the essentials under it) */
+  &:not([zen-single-toolbar="true"]) #nav-bar {
+    padding-inline: var(--zia-toolbar-end-gap) !important;
+  }
+
+  &:not([zen-single-toolbar="true"]) #urlbar-container {
+    margin-inline-start: 8px !important;
+  }
+}
+
+/* Windows: no gap after the window buttons at the toolbar's end, so close
+   sits in the window's corner, as in Windows itself (the gap stays with the
+   buttons hidden, or dimming instead) */
+@media (-moz-platform: windows) {
+  :root:not(#zia-none):not([zen-little-window="true"]):not([inDOMFullscreen="true"]):not([popup-window]) #nav-bar:has(.titlebar-buttonbox-container) {
+    padding-inline-end: 0 !important;
+  }
+
+  /* The card sits a little below the window's top edge, so a flick of the
+     mouse to the top of the screen landed in that gap, which only drags
+     the window. Each button's click area reaches up to the edge, as in
+     Windows itself; the buttons look just the same. (On ::after, as
+     Firefox draws each button's glyph in its ::before.) */
+  :root:not([inDOMFullscreen="true"]):not([popup-window]) #nav-bar .titlebar-button {
+    position: relative;
+    -moz-window-dragging: no-drag;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      bottom: 100%;
+      height: 48px;
+      -moz-window-dragging: no-drag;
+    }
+
+    /* Close reaches the screen's right edge as well, and the corner above
+       it, so a flick into the top-right corner of a full-size window
+       closes it, as in Windows (and Dia) */
+    &.titlebar-close::after {
+      inset-inline: 0 -48px;
+      top: -48px;
+      bottom: 0;
+      height: auto;
+    }
+  }
+}
+
+/* Zen's single toolbar (Look and Feel), with the address bar in the
+   sidebar: the bar above the page holds nothing but the window buttons, so
+   it isn't drawn as a toolbar (no site colour, no line under it, no top
+   corners), and the page itself is the rounded card, with all four corners
+   round. Drawn as the toolbar, it showed as a dark strip across the top.
+   The same with "Toolbar in the site's colour" off: the toolbar in Zen's
+   own colour, the window's (the sidebar's), rather than Zia's near-black
+   (zia-theme-toolbar, zia.uc.js; not in compact mode, where the toolbar
+   floats over the page) */
+:root:is([zen-single-toolbar="true"], [zia-theme-toolbar]:not([zen-compact-mode="true"])):not(#zia-none):not([inDOMFullscreen="true"]):not([popup-window]) {
+  & #zen-appcontent-wrapper {
+    box-shadow: none !important;
+  }
+
+  & #zen-appcontent-navbar-wrapper {
+    background: transparent !important;
+    border-bottom: none !important;
+    border-radius: 0 !important;
+  }
+
+  & #tabbrowser-tabbox {
+    border-radius: var(--zia-card-radius) !important;
+    box-shadow: var(--zia-card-shadow) !important;
+  }
+
+  & #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+    border-radius: var(--zia-card-radius) !important;
+  }
+
+  & #tabbrowser-tabpanels :is(.browserSidebarContainer, .browserStack, browser) {
+    clip-path: inset(0 round var(--zia-card-radius));
+  }
+}
+
+/* An empty tab (a space with no tabs open): the page shows the window's colour
+   through it, and the toolbar is clear too, the same colour. Painted as a site's,
+   it took what the page's top was read as, which misses what macOS draws of the
+   window (its see-through material), so it came out a greyer shade over it. */
+:root[zen-has-empty-tab="true"]:not(#zia-none):not([inDOMFullscreen="true"]):not([popup-window]) #zen-appcontent-navbar-wrapper {
+  background-color: transparent !important;
+}
+
+/* Optional: the page edge to edge, with no gap, rounded corners or shadow
+   around it. Zen's own zen.theme.content-element-separation = 0 does the
+   same, so that's followed too. */
+:root[zen-no-padding="true"]:not(#zia-none):not(#zia-none-2) {
+  --zia-card-gap: 0px;
+  --zia-card-top-gap: 0px;
+  --zia-card-radius: 0px;
+  --zia-card-shadow: none;
+}
+
+/* A page gone full screen inside the window (zia.uc.js): square, black and
+   edge to edge, as it is when it takes over the screen */
+:root[zia-page-fullscreen]:not(#zia-none):not(#zia-none-2):not(#zia-none-3) {
+  --zia-card-gap: 0px;
+  --zia-card-top-gap: 0px;
+  --zia-card-radius: 0px;
+  --zia-card-shadow: none;
+
+  & #tabbrowser-tabpanels :is(.browserSidebarContainer, .browserStack, browser) {
+    border-radius: 0 !important;
+    clip-path: none !important;
+    box-shadow: none !important;
+  }
+
+  & #tabbrowser-tabpanels browser[type="content"] {
+    background: #000 !important;
+  }
+}
+
+/* A glance open: the toolbar steps back, clear on the window's own
+   background in the sidebar's ink rather than the glanced site's colour
+   (it spanned the window while the glance is narrower). The page behind
+   is a quieter card, 8px corners and no shadow, and the glance in front a
+   rounder one, 16px. (Thanks to meteulku for the design.) */
+:root:not(#zia-none):not([inDOMFullscreen="true"]):not([popup-window]) #zen-appcontent-wrapper:has(.browserSidebarContainer.zen-glance-background) {
+  --zia-glance-ink: light-dark(rgb(40, 40, 44), rgb(251, 251, 254));
+  background: transparent !important;
+  box-shadow: none !important;
+
+  & #zen-appcontent-navbar-wrapper {
+    background-color: transparent !important;
+    border-bottom-color: transparent !important;
+    color-scheme: inherit !important;
+    color: var(--zia-glance-ink) !important;
+    --toolbox-textcolor: var(--zia-glance-ink) !important;
+    --toolbar-color: var(--zia-glance-ink) !important;
+    --toolbar-field-color: var(--zia-glance-ink) !important;
+    --toolbarbutton-icon-fill: var(--zia-glance-ink) !important;
+    --zia-toolbar-ink: var(--zia-glance-ink);
+
+    & toolbarbutton:not(.webextension-browser-action, [id$="-browser-action"], [id$="-BAP"]) {
+      color: var(--zia-glance-ink) !important;
+      fill: var(--zia-glance-ink) !important;
+    }
+  }
+
+  & #tabbrowser-tabpanels .browserSidebarContainer.zen-glance-background {
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    clip-path: inset(0 round 8px) !important;
+
+    & :is(.browserStack, browser) {
+      clip-path: inset(0 round 8px) !important;
+    }
+  }
+
+  & #tabbrowser-tabpanels .browserSidebarContainer.zen-glance-overlay {
+    & .browserContainer:not([fade-out="true"]),
+    & .browserStack {
+      border-radius: 16px !important;
+    }
+
+    & :is(.browserStack, browser) {
+      clip-path: inset(0 round 16px) !important;
+    }
+  }
+}
+
+/* A pop-up window (a site's window.open): no sidebar or tabs, the address read-only.
+   Zen's sidebar button (it toggles a sidebar the pop-up hasn't got) and the
+   extensions menu (its buttons are hidden there) go; the address row takes the
+   window's colour, as the title row above it does, rather than a strip of its own;
+   and the address doesn't light up under the pointer as if it could be typed in
+   (#482) */
+:root[popup-window]:not(#zia-none) {
+  & :is(#zen-toggle-compact-mode, #unified-extensions-button) {
+    display: none !important;
+  }
+
+  & :is(#zen-appcontent-navbar-wrapper, #nav-bar) {
+    background: transparent !important;
+  }
+
+  & #urlbar > .urlbar-background {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  & #urlbar :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+    cursor: default !important;
+  }
+}
+
+/* Zia's address bar, all of it (the bar, its loading line, the page's
+   title in it, the copy-link and site buttons, the pop-up), with "Zia's
+   address bar" on, zia.urlbar.zia-look; off leaves the bar as Zen draws
+   it and keeps the rest of Zia */
+#urlbar:not(:hover):not([focused]):not([breakout-extend]) > .urlbar-background {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+  }
+#urlbar:not([breakout-extend]) > .urlbar-background {
+    border-radius: var(--zia-urlbar-radius) !important;
+    transition: background-color 0.06s linear !important;
+  }
+:root:not([zia-split="true"]) #urlbar:not([breakout-extend], [zen-floating-urlbar="true"]) {
+    height: var(--zia-urlbar-height) !important;
+    min-height: var(--zia-urlbar-height) !important;
+    max-height: var(--zia-urlbar-height) !important;
+    --urlbar-height: var(--zia-urlbar-height) !important;
+
+    & :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+      translate: 0 0;
+    }
+  }
+/* The bar's contents centred in its height, whatever is showing in it:
+     searching your bookmarks, history or tabs brings up a taller search
+     button that otherwise pushed the text and icons down, leaving less room
+     below them than above */
+:root:not([zia-split="true"]) #urlbar:not([breakout-extend]) > :is(#urlbar-input-container, .urlbar-input-container) {
+    height: 100% !important;
+    min-height: 0 !important;
+    padding-block: 0 !important;
+    align-items: center !important;
+  }
+#urlbar:is(:hover, [focused]):not([breakout-extend]) > .urlbar-background {
+    background: var(--zia-urlbar-hover-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+/* In the sidebar (Zen's single toolbar) the bar is a field of its own, as in Dia: no
+     toolbar around it to say where it is, so it keeps a faint fill, brighter on hover */
+:root[zen-single-toolbar="true"] #urlbar:not([breakout-extend]) > .urlbar-background {
+    background: color-mix(in srgb, currentColor 7%, transparent) !important;
+  }
+:root[zen-single-toolbar="true"] #urlbar:is(:hover, [focused]):not([breakout-extend]) > .urlbar-background {
+    background: color-mix(in srgb, currentColor 11%, transparent) !important;
+  }
+/* ...as tall as a tab, and as round (its own corner was tighter than the tabs
+     under it) */
+:root[zen-single-toolbar="true"]:not([zia-split="true"]) #urlbar:not([breakout-extend], [zen-floating-urlbar="true"]) {
+    --zia-urlbar-radius: var(--zia-tab-radius) !important;
+    height: var(--zia-tab-height) !important;
+    min-height: var(--zia-tab-height) !important;
+    max-height: var(--zia-tab-height) !important;
+    --urlbar-height: var(--zia-tab-height) !important;
+    /* (Zen's 1px all round, and the fill's own inset, left it 2px shorter than a tab) */
+    padding: 0 !important;
+
+    & > .urlbar-background {
+      inset: 0 !important;
+      margin: 0 !important;
+      border-width: 0 !important;
+    }
+  }
+/* Windows, with no tab open: the address bar's hover showed as a flat,
+     solid grey block; it's the same light see-through wash as elsewhere. */
+@media (-moz-platform: windows) {
+    :root[zen-has-empty-tab="true"] #urlbar:is(:hover, [focused]):not([breakout-extend]) > .urlbar-background {
+      background: rgba(255, 255, 255, 0.09) !important;
+      background-color: rgba(255, 255, 255, 0.09) !important;
+    }
+  }
+/* The floating address bar's row is Zen's 62px (15px above and below the
+     text), but with nothing listed under it the bar itself stayed 52px, so
+     its background was 10px short at the bottom and the address and icon sat
+     5px below its middle: the bar is at least as tall as its row */
+#urlbar[zen-floating-urlbar="true"]:not([zia-classic]) {
+    min-height: var(--urlbar-container-height, 62px) !important;
+  }
+/* The floating address bar with nothing to list under it yet (no history,
+     top sites or suggestions to show as it opens: Firefox doesn't open the
+     list then, so it's never "extended"): it's the pop-up all the same, in
+     its colour, corners, edge and shadow, at its own height (the toolbar's
+     31px squeezed it, its text sitting low) */
+#urlbar[zen-floating-urlbar="true"]:not([breakout-extend]):not([zia-classic]) {
+    border-radius: calc(var(--zia-pop-radius) * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+
+    & > .urlbar-background {
+      background: var(--zia-urlbar-open-bg) !important;
+      border: none !important;
+      border-radius: calc(var(--zia-pop-radius) * var(--zia-squircle-grow)) !important;
+      corner-shape: var(--zia-squircle) !important;
+      box-shadow: var(--zia-glass-edge), var(--zia-glass-pop-lift) !important;
+    }
+
+    & > :is(#urlbar-input-container, .urlbar-input-container) {
+      align-items: center !important;
+    }
+  }
+#urlbar[breakout-extend]:not([zia-classic]):not([zen-floating-urlbar="true"]) {
+    border-radius: calc(var(--zia-pop-radius) * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+    translate: var(--zia-urlbar-open-offset-x, 0px) var(--zia-urlbar-open-offset) !important;
+    --urlbarview-separator-color: transparent !important;
+    --urlbarView-separator-color: transparent !important;
+
+    & > .urlbar-background {
+      background: var(--zia-urlbar-open-bg) !important;
+      border-radius: calc(var(--zia-pop-radius) * var(--zia-squircle-grow)) !important;
+      corner-shape: var(--zia-squircle) !important;
+      box-shadow: var(--zia-glass-edge), var(--zia-glass-pop-lift) !important;
+      backdrop-filter: none !important;
+      /* (up to the window's top edge, zia.uc.js; and down past its last row,
+         where the pop-up's own height fell short of it, #450) */
+      top: calc(-1 * var(--zia-pop-reach-top, 0px)) !important;
+      bottom: calc(-1 * var(--zia-pop-reach-bottom, 0px)) !important;
+      transform-origin: 50% 0 !important;
+      animation: zia-urlbar-open 0.18s cubic-bezier(0.2, 0.9, 0.3, 1) !important;
+    }
+  }
+@keyframes zia-urlbar-open {
+    from { scale: 0.8; opacity: 0.4; }
+    to { scale: 1; opacity: 1; }
+  }
+#urlbar[breakout-extend]:not([zia-classic]) {
+    /* (Zen 1.23 gave every row a 45px least height and a clear 2px border
+       above and below, which made Zia's rows taller and further apart) */
+    --urlbarview-row-min-height: var(--zia-pop-row-height) !important;
+
+    & .urlbarView-row {
+      margin-inline: var(--zia-pop-row-inset) !important;
+      margin-block: calc(var(--zia-pop-row-gap) / 2) !important;
+      padding-block: 0 !important;
+      border-block: 0 !important;
+      min-height: 0 !important;
+      border-radius: var(--zia-pop-row-radius) !important;
+
+      & > .urlbarView-row-inner {
+        padding-block: 0 !important;
+        min-height: var(--zia-pop-row-height) !important;
+        align-items: center !important;
+      }
+    }
+
+    & .urlbarView-row:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    & .urlbarView-row[selected] {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+
+      :root[zia-space-colored="true"] & {
+        background-color: color-mix(in srgb, var(--zen-primary-color, white) 12%, rgb(61, 61, 61)) !important;
+      }
+
+      & .urlbarView-shortcutContent {
+        background-color: transparent !important;
+        fill: rgba(255, 255, 255, 0.9) !important;
+        /* (Zen darkens these for its white chip, which Zia takes away) */
+        color: rgba(255, 255, 255, 0.55) !important;
+      }
+
+      & .urlbarView-favicon {
+        fill: rgba(255, 255, 255, 0.85) !important;
+      }
+    }
+
+    & .urlbarView-favicon {
+      background-color: transparent !important;
+      border-radius: 0 !important;
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      padding: 0 !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-title,
+      .urlbarView-url,
+      .urlbarView-action,
+      .urlbarView-title-separator,
+      .urlbarView-tags,
+      .urlbarView-title strong) {
+      font-size: var(--zia-text-size) !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-title,
+      .urlbarView-url,
+      .urlbarView-action,
+      .urlbarView-title-separator,
+      .urlbarView-tags) {
+      font-weight: var(--zia-tab-weight) !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-title, .urlbarView-url, .urlbarView-action) strong {
+      font-weight: var(--zia-tab-weight) !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-title, .urlbarView-title strong) {
+      color: rgb(255, 255, 255) !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-url, .urlbarView-action, .urlbarView-title-separator) {
+      color: rgba(255, 255, 255, 0.55) !important;
+    }
+
+    & .urlbarView-row :is(.urlbarView-url, .urlbarView-action, .urlbarView-title-separator, .urlbarView-tags) strong {
+      color: inherit !important;
+    }
+
+    & :is(.urlbarView-button-result-menu, .urlbarView-result-menu-button, .urlbarView-button-menu) {
+      display: none !important;
+    }
+
+    & :is(.urlbarView-action.urlbarView-switchToTab, .urlbarView-row[type="switchtab"] .urlbarView-action) {
+      display: none !important;
+    }
+
+    /* An open tab says so: a small "Switch to tab" tag at the end of its row
+       (Firefox's own action text is hidden above), pinned to the row's end so
+       a long title can't push it out of view (a sliver of it showed there) */
+    & .urlbarView-row[type="switchtab"] .urlbarView-row-inner {
+      position: relative;
+      padding-inline-end: 104px !important;
+    }
+
+    & .urlbarView-row[type="switchtab"] .urlbarView-row-inner::after {
+      content: "Switch to tab";
+      position: absolute;
+      inset-inline-end: 8px;
+      top: 50%;
+      translate: 0 -50%;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+      color: color-mix(in srgb, currentColor 60%, transparent);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 16px;
+      white-space: nowrap;
+    }
+
+    & :is(.urlbarView, .urlbarView-results, #urlbar-results) {
+      padding-inline: 0 !important;
+      padding-block: 0 !important;
+      margin-inline: 0 !important;
+    }
+
+    /* (outside the list's scroll, as the box around it had it till Zen 1.23.3 took that box out) */
+    & #urlbar-results {
+      margin-block: var(--zia-pop-list-pad) !important;
+      /* Zen's 244px fit under 7 of Zia's taller rows, so most searches scrolled and
+         arrowing down hid the top row under the typing box; still scrolls on a short window */
+      max-height: 70vh !important;
+    }
+
+    & .urlbarView {
+      margin-block-end: calc(-1 * var(--zia-pop-bottom-trim)) !important;
+    }
+
+    /* When the list scrolls it hangs past the pop-up by the trim. Cut it off
+       exactly at the pop-up's edge, so rows run right up to it mid-scroll, and
+       add the hidden amount back as space at the end, so the last row scrolls
+       clear with the same gap below it as at the sides. */
+    :root[zia-pop-scrolls="true"] & .urlbarView {
+      clip-path: inset(0 0 var(--zia-pop-bottom-trim) 0);
+    }
+
+    :root[zia-pop-scrolls="true"] & #urlbar-results::after {
+      content: "";
+      display: block;
+      height: var(--zia-pop-bottom-trim);
+    }
+
+    --urlbarView-item-inline-padding: 8px !important;
+
+    & :is(.urlbarView, .urlbarView-results, #urlbar-results) {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-inline: 0 !important;
+    }
+
+    & :is(.urlbarView-results, #urlbar-results) {
+      border-block: 0 !important;
+    }
+
+    & .urlbarView-row-buttons {
+      display: none !important;
+    }
+
+    & :is(.search-one-offs, #urlbar-one-offs, .search-panel-one-offs-container) {
+      display: none !important;
+    }
+  }
+:is(#urlbar:not([breakout-extend]), .zia-pane-address)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--zia-urlbar-radius);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    --zia-load-width: calc(var(--zia-load-progress, 0) * 100%);
+    --zia-load-p: var(--zia-load-progress, 0);
+    --zia-load-tint: color-mix(in srgb, var(--zia-loading-color) 30%, transparent),
+      color-mix(in srgb, var(--zia-loading-color) 14%, transparent) 50%,
+      transparent 100%;
+    --zia-load-line: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--zia-loading-color) 70%, transparent),
+      var(--zia-loading-color) 85%,
+      color-mix(in srgb, var(--zia-loading-color) 55%, white) 100%
+    );
+    --zia-load-glow: color-mix(in srgb, var(--zia-loading-color) 36%, transparent),
+      color-mix(in srgb, var(--zia-loading-color) 16%, transparent) 35%,
+      color-mix(in srgb, var(--zia-loading-color) 5%, transparent) 70%,
+      transparent 100%;
+    background:
+      radial-gradient(farthest-side at 100% 100%, var(--zia-load-glow))
+        calc(var(--zia-load-p) * 100% + (var(--zia-load-p) - 1) * 180px) 100% / 180px 100% no-repeat,
+      radial-gradient(farthest-side at 0% 100%, var(--zia-load-glow))
+        calc(var(--zia-load-p) * 100% + var(--zia-load-p) * 28px) 100% / 28px 100% no-repeat,
+      radial-gradient(100% 100% at 100% 100%, var(--zia-load-tint))
+        calc(var(--zia-load-p) * 100% + (var(--zia-load-p) - 1) * 240px) 100% / 240px 100% no-repeat,
+      radial-gradient(100% 100% at 0% 100%, var(--zia-load-tint))
+        calc(var(--zia-load-p) * 100% + var(--zia-load-p) * 36px) 100% / 36px 100% no-repeat,
+      var(--zia-load-line) left bottom / var(--zia-load-width) 1.5px no-repeat;
+  }
+:root[zia-loading="true"] #urlbar:not([breakout-extend])::after,
+  :root .zia-pane-address[zia-loading]:not(#zia-none)::after {
+    opacity: 1;
+    animation: zia-loading-shimmer 1.4s ease-in-out infinite;
+  }
+@keyframes zia-loading-shimmer {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.25); }
+  }
+#urlbar .urlbar-input-box {
+    position: relative;
+  }
+#zia-url-title,
+  #zia-url-plain {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    color: var(--toolbar-field-color, currentColor);
+  }
+#zia-url-title > span,
+  #zia-url-plain > span {
+    white-space: pre;
+  }
+#zia-url-title .zia-url-title-rest,
+  #zia-url-plain .zia-url-title-rest {
+    opacity: 0.55;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+#urlbar[zia-has-title="true"]:not(:hover):not([focused]):not([breakout-extend]) #zia-url-title {
+    display: flex;
+  }
+#urlbar[zia-has-title="true"]:hover:not([focused]):not([breakout-extend]) #zia-url-plain {
+    display: flex;
+  }
+#urlbar[zia-has-title="true"]:not([focused]):not([breakout-extend]) .urlbar-input {
+    opacity: 0 !important;
+  }
+/* Optionally, the closed bar shows only the page's title, in the domain's
+     colour (zia.uc.js), and keeps it on hover: the address shows once clicked */
+@media (width < 0px) {
+    #zia-url-title .zia-url-title-host {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #urlbar[zia-has-title="true"]:hover:not([focused]):not([breakout-extend]) {
+      & #zia-url-title {
+        display: flex;
+      }
+
+      & #zia-url-plain {
+        display: none;
+      }
+    }
+  }
+#urlbar :is(.urlbar-input, #zia-url-title, #zia-url-title span, #zia-url-plain, #zia-url-plain span) {
+    font-weight: var(--zia-tab-weight) !important;
+  }
+/* Zen's own copy button gives way to Zia's paperclip, once it's there */
+#urlbar:has(#zia-copy-link-button) #zen-copy-url-button {
+    display: none !important;
+  }
+#urlbar #identity-box,
+  #urlbar #page-action-buttons {
+    transition: opacity 0.15s ease !important;
+  }
+#urlbar:not(:hover):not([focused]):not([breakout-extend]) :is(#identity-box, #page-action-buttons) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+/* (in the sidebar, Zen's single toolbar, Zen shows and fades each of them itself with
+     the sidebar hovered, as it does the extensions beside them: hidden here as well,
+     only the extensions showed till the bar itself was hovered, then faded in slower) */
+:root[zen-single-toolbar="true"] #urlbar:not([breakout-extend]) :is(#identity-box, #page-action-buttons) {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+/* Takes the address bar's colour as it changes with the site, like the
+     icons beside it. */
+#zia-copy-link-button {
+    color: inherit !important;
+  }
+#zia-copy-link-button image {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/paperclip.svg") !important;
+    -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+    fill: currentColor;
+  }
+#zia-copy-link-button[zia-copied] image {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/check.svg") !important;
+  }
+/* (Dia's tile, measured: 22 square with a 3.5px corner, 26px from one icon
+     to the next. At 26 square it nearly filled the bar's height, with three
+     times as much room to its right; Zen's 8px corner made it near round) */
+#urlbar :is(#zia-copy-link-button, #zen-site-data-icon-button) {
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    border-radius: 3.5px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
+#urlbar #zen-site-data-icon-button {
+    margin-inline-start: 3px !important;
+  }
+/* Firefox's own buttons there (translate, reader view, the star...), when
+     they show, as the same tile: they had Firefox's rounder, brighter one
+     (only at least 22 wide, so the translate one's language still fits) */
+#urlbar #page-action-buttons > .urlbar-page-action:not(#zia-copy-link-button, #zen-site-data-icon-button) {
+    min-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    border-radius: 3.5px !important;
+    padding-block: 0 !important;
+    margin-inline-start: 3px !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    align-items: center !important;
+    align-self: center !important;
+
+    &:is(:hover, [open]) {
+      background-color: color-mix(in srgb, currentColor 7%, transparent) !important;
+    }
+  }
+/* (Dia's tile is about 7% over the bar, measured; Zen's was several times
+     that. The icon's own ink, so it's dark on a light bar) */
+#urlbar :is(#zia-copy-link-button, #zen-site-data-icon-button):is(:hover, [open]) {
+    background-color: color-mix(in srgb, currentColor 7%, transparent) !important;
+  }
+/* (Dia's icons in them a touch smaller than the toolbar's 16px) */
+#urlbar #zia-copy-link-button image {
+    width: 14px !important;
+    height: 14px !important;
+  }
+#zia-copy-link-button[hidden],
+  #urlbar[breakout-extend]:not([zia-classic]) #zia-copy-link-button {
+    display: none !important;
+  }
+#urlbar *:active,
+  #urlbar *:active > image {
+    scale: 1 !important;
+    transform: none !important;
+  }
+#zen-site-data-icon-button image {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/site-settings.svg") !important;
+  }
+
+#zen-toggle-compact-mode,
+#PanelUI-menu-button {
+  padding-inline: 1px !important;
+  margin-inline: 0 !important;
+}
+
+:root[zen-little-window="true"] #zen-toggle-compact-mode {
+  visibility: collapse !important;
+  display: none !important;
+  min-width: 0 !important;
+  width: 0 !important;
+  max-width: 0 !important;
+}
+
+/* The ⋯ menu (Firefox's app menu) shows at the end of the toolbar; it can be
+   hidden in Zia's settings, as Dia and Arc have none. Hidden, it's kept in its
+   place at no width rather than taken out: Firefox's notices (an update ready,
+   an add-on added) still point at it, and opened from the keyboard the menu
+   still has its corner. */
+
+#zen-toggle-compact-mode {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/sidebar.svg") !important;
+}
+
+/* the same shade as back, forward and reload (Zen's toolbar buttons are a
+   little softer than the text, which these otherwise took) */
+:is(#zen-toggle-compact-mode, #PanelUI-menu-button, #PanelUI-menu-button[open]) .toolbarbutton-icon {
+  fill: var(--toolbarbutton-icon-fill, currentColor) !important;
+}
+
+#back-button {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/back.svg") !important;
+}
+
+#forward-button {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/forward.svg") !important;
+}
+
+#reload-button {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/reload-arc.svg") !important;
+}
+
+#stop-button {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/stop.svg") !important;
+}
+
+/* (the buttons themselves not in the sidebar's address bar, Zen's single toolbar, where
+   Zen fades them in and out with the site and copy buttons: still, they showed and went
+   at once, before those) */
+:root:not([zen-single-toolbar="true"]) #nav-bar :is(
+  .unified-extensions-item,
+  .webextension-browser-action,
+  toolbarbutton[id$="-browser-action"],
+  toolbarbutton[id$="-BAP"]
+),
+#nav-bar :is(
+  .unified-extensions-item,
+  .webextension-browser-action,
+  toolbarbutton[id$="-browser-action"],
+  toolbarbutton[id$="-BAP"]
+)::before,
+#nav-bar :is(
+  .unified-extensions-item,
+  .webextension-browser-action,
+  toolbarbutton[id$="-browser-action"],
+  toolbarbutton[id$="-BAP"]
+) :is(
+  .toolbarbutton-icon,
+  .toolbarbutton-badge-stack,
+  .toolbarbutton-badge,
+  .unified-extensions-item-action-button
+) {
+  transition: none !important;
+  animation: none !important;
+}
+
+:root #zen-appcontent-navbar-wrapper {
+  color-scheme: dark !important;
+  color: rgb(251, 251, 254) !important;
+  --zia-toolbar-ink: rgb(251, 251, 254);
+  --toolbox-textcolor: rgb(251, 251, 254) !important;
+  --toolbar-color: rgb(251, 251, 254) !important;
+  --toolbar-field-color: rgb(251, 251, 254) !important;
+  --zen-toolbar-element-bg: rgba(255, 255, 255, 0.06) !important;
+  --zen-toolbar-element-bg-hover: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root[zia-site-dark="true"] #zen-appcontent-navbar-wrapper {
+  color: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  --toolbox-textcolor: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  --toolbar-color: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  --toolbar-field-color: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  /* the buttons and extension icons in the address's own ink, so they all
+     match (they were whiter than the address) */
+  --toolbarbutton-icon-fill: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  --zia-toolbar-ink: var(--zia-dark-ink, rgb(251, 251, 254));
+
+  & toolbarbutton:not(.webextension-browser-action, [id$="-browser-action"], [id$="-BAP"]) {
+    color: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+    fill: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+    fill-opacity: 1 !important;
+  }
+}
+
+:root[zia-site-dark="true"] :is(#zia-url-title, #zia-url-plain) .zia-url-title-rest {
+  opacity: 0.36;
+}
+
+/* Strong mid colours (a bright red): the toolbar's text and buttons are
+   full white, and the dimmed end of the address a lot less dim. */
+:root[zia-site-mid="true"] #zen-appcontent-navbar-wrapper {
+  color: rgb(255, 255, 255) !important;
+  --toolbox-textcolor: rgb(255, 255, 255) !important;
+  --toolbar-color: rgb(255, 255, 255) !important;
+  --toolbar-field-color: rgb(255, 255, 255) !important;
+  --toolbarbutton-icon-fill: rgb(255, 255, 255) !important;
+  --zia-toolbar-ink: rgb(255, 255, 255);
+  --zen-toolbar-element-bg-hover: rgba(0, 0, 0, 0.14) !important;
+
+  & toolbarbutton:not(.webextension-browser-action, [id$="-browser-action"], [id$="-BAP"]) {
+    color: rgb(255, 255, 255) !important;
+    fill: rgb(255, 255, 255) !important;
+    fill-opacity: 1 !important;
+  }
+
+  & #PersonalToolbar :is(.toolbarbutton-text, .toolbarbutton-icon) {
+    opacity: 1 !important;
+  }
+}
+
+:root[zia-site-mid="true"] :is(#zia-url-title, #zia-url-plain) .zia-url-title-rest {
+  opacity: 0.78;
+}
+
+:root[zia-site-light="true"] #zen-appcontent-navbar-wrapper {
+  color-scheme: light !important;
+  color: var(--zia-light-ink) !important;
+  --toolbox-textcolor: var(--zia-light-ink) !important;
+  --toolbar-color: var(--zia-light-ink) !important;
+  --toolbar-field-color: var(--zia-light-ink) !important;
+  /* the buttons in the same ink as the address, as in Dia */
+  --toolbarbutton-icon-fill: var(--zia-light-ink) !important;
+  --zia-toolbar-ink: var(--zia-light-ink);
+  --zen-toolbar-element-bg: rgba(0, 0, 0, 0.06) !important;
+  --zen-toolbar-element-bg-hover: rgba(0, 0, 0, 0.1) !important;
+}
+
+:root[zia-site-light="true"] :is(#zia-url-title, #zia-url-plain) .zia-url-title-rest {
+  /* (the ink is already the softer brown-grey, so less dim than on dark) */
+  opacity: 0.7;
+}
+
+:root[zia-site-light="true"] #zen-appcontent-navbar-wrapper toolbarbutton:not(.webextension-browser-action, [id$="-browser-action"], [id$="-BAP"]) {
+  color: var(--zia-light-ink) !important;
+  fill: var(--zia-light-ink) !important;
+  /* full strength, or the thin strokes read lighter than the address */
+  fill-opacity: 1 !important;
+}
+
+/* Extension icons that take the toolbar's colour (Zia's own icons given to
+   an extension, and extensions' single-colour icons) in the same shade as
+   reload, back and the sidebar button beside them (the toolbar's icon
+   colour, a little softer than the address), at full strength: they came
+   out fainter, and then, in the address's ink, brighter */
+#zen-appcontent-navbar-wrapper :is(.webextension-browser-action, toolbarbutton[id$="-browser-action"], toolbarbutton[id$="-BAP"]),
+#zen-appcontent-navbar-wrapper :is(.webextension-browser-action, toolbarbutton[id$="-browser-action"], toolbarbutton[id$="-BAP"]) :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  fill: var(--toolbarbutton-icon-fill, var(--zia-toolbar-ink, currentColor)) !important;
+  stroke: var(--toolbarbutton-icon-fill, var(--zia-toolbar-ink, currentColor)) !important;
+  fill-opacity: 1 !important;
+  stroke-opacity: 1 !important;
+}
+
+/* Every icon in the toolbar (reload, back, the sidebar button, the menu,
+   extensions) in the address's own ink, as in Dia: Zen draws them in each
+   button's text colour at 70%, a step dimmer than the address, and
+   extensions' text colour had stayed plain white, so theirs were brighter */
+#zen-appcontent-navbar-wrapper toolbarbutton {
+  --toolbarbutton-icon-fill: var(--zia-toolbar-ink, currentColor) !important;
+}
+
+#zen-appcontent-navbar-wrapper :is(.webextension-browser-action, toolbarbutton[id$="-browser-action"], toolbarbutton[id$="-BAP"]) {
+  color: var(--zia-toolbar-ink, currentColor) !important;
+}
+
+/* Extension buttons in the toolbar spaced as Zen's own beside them: each
+   took 2px either side the others didn't, so the gaps grew wherever an
+   extension sat (31px a button, as share, back and the menu take) */
+#zen-appcontent-navbar-wrapper #nav-bar-customization-target > :is([id$="-browser-action"], [id$="-BAP"]) {
+  margin-inline: 0.5px !important;
+}
+
+:root #urlbar[breakout-extend]:not([zia-classic]) {
+    color-scheme: dark !important;
+    color: rgb(251, 251, 254) !important;
+    --toolbar-field-color: rgb(251, 251, 254) !important;
+    --toolbar-field-focus-color: rgb(251, 251, 254) !important;
+
+    & .urlbar-input {
+      color: rgb(251, 251, 254) !important;
+    }
+
+    & .urlbar-icon {
+      color: rgb(251, 251, 254) !important;
+      fill: currentColor !important;
+    }
+  }
+
+/* The "paste the copied link" suggestion: just the link, without the
+     search engine's name in a chip at the far right */
+
+.urlbarView-row:is([type="clipboard"], :has(.urlbarView-favicon[src*="clipboard"])) :is(.urlbarView-action, .urlbarView-button:not(.urlbarView-button-result-menu)) {
+    display: none !important;
+  }
+
+/* "Switch to tab:" (and the like) in the address itself, the address's own
+     size rather than Zen's 14px */
+
+#urlbar[breakout-extend]:not([zia-classic]) :is(#urlbar-label-box, #urlbar-label-box > *) {
+    font-size: var(--zia-text-size) !important;
+    font-weight: var(--zia-tab-weight) !important;
+  }
+
+/* Optional: the address bar's text centred in it (off: from the left).
+     Only the toolbar's: the floating bar mid-window (Zen's new tab bar, or
+     its own setting) is a search box, and starts from the left. */
+
+@media (width < 0px) {
+    #urlbar:not([zen-floating-urlbar="true"]) :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+      text-align: center !important;
+      justify-content: center !important;
+    }
+
+    /* ...on the toolbar's middle rather than the bar's, padded on one side by
+       twice the gap between them (zia.uc.js) */
+    /* (opened as well, so the text stays where it was as the bar is clicked: centred in
+       the opened bar instead, it jumped aside, #443) */
+    #urlbar:not([zen-floating-urlbar="true"]) :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+      padding-left: max(0px, 2 * var(--zia-center-shift, 0px)) !important;
+      padding-right: max(0px, -2 * var(--zia-center-shift, 0px)) !important;
+    }
+
+    /* Optionally only while it's closed: opened, the typing starts from the left,
+       in line with the rows under it (#446) */
+    @media (width < 0px) {
+      #urlbar[breakout-extend]:not([zen-floating-urlbar="true"]) :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+        text-align: start !important;
+        justify-content: flex-start !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+    }
+  }
+
+/* Zen's own address bar: Zia's parts of it put away, Zen's back */
+
+/* Answers in the pop-up, the result in larger type: maths, units and time
+   zones (Firefox's rows) and colours (Zia's, with a swatch) */
+.urlbarView-row:is([dynamicType="calculator"], [dynamicType="unitConversion"], [dynamicType="ziaColour"]) strong {
+  font-size: 1.2em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.urlbarView-dynamic-ziaColour-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.urlbarView-dynamic-ziaColour-swatch {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.25), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.urlbarView-dynamic-ziaColour-forms {
+  opacity: 0.55;
+  font-size: 0.92em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#zia-workspace-slot {
+  display: flex;
+  flex: 1;
+  min-width: min(max-content, 100%);
+  align-items: center;
+  -moz-window-dragging: drag;
+
+  & > .zen-current-workspace-indicator {
+    max-width: 100% !important;
+    min-height: var(--zia-space-pill-height) !important;
+    max-height: var(--zia-space-pill-height) !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    background-color: transparent !important;
+    margin-inline-start: var(--zia-space-name-nudge) !important;
+    translate: 0 var(--zia-space-name-offset);
+
+    & > toolbarbutton:last-of-type {
+      margin-inline-end: 0 !important;
+    }
+
+    & .zen-workspaces-actions {
+      display: none !important;
+    }
+
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+
+    /* Only the name's pill (and the space's icon under it) is clickable:
+       Zen folds the space on a click anywhere in this box, and it reached
+       well past the pill into the empty row beside it. The rest of the row
+       is left to drag the window, as the top row does. */
+    pointer-events: none !important;
+
+    & > :is(#zia-space-label, .zen-current-workspace-indicator-stack, .zen-current-workspace-indicator-name) {
+      pointer-events: auto !important;
+    }
+
+    & > #zia-space-label:hover,
+    &:has(> .zen-current-workspace-indicator-stack:hover) > #zia-space-label {
+      background-color: var(--zia-space-pill-bg) !important;
+    }
+
+    &::before {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    &:has(#zia-space-label) > .zen-current-workspace-indicator-name {
+      display: none !important;
+    }
+
+    &:has(#zia-space-label) .zen-current-workspace-indicator-stack {
+      position: absolute !important;
+      inset-inline-start: 8px !important;
+      top: 50% !important;
+      translate: 0 -50% !important;
+      margin: 0 !important;
+      width: 16px !important;
+      height: 16px !important;
+      opacity: 0 !important;
+      background: transparent !important;
+    }
+
+    .zen-current-workspace-indicator-name {
+      flex: 0 0 auto !important;
+    }
+  }
+}
+
+:root[zen-sidebar-expanded] #zia-workspace-slot[collapsedpinnedtabs] > .zen-current-workspace-indicator {
+  .zen-current-workspace-indicator-stack:not([zen-emoji-open="true"]) {
+    .zen-current-workspace-indicator-chevron {
+      display: flex;
+      opacity: 1;
+    }
+
+    .zen-current-workspace-indicator-icon {
+      display: none;
+    }
+  }
+}
+
+:root[zen-sidebar-expanded] #zia-workspace-slot[collapsedpinnedtabs] .zen-current-workspace-indicator-chevron {
+  transform: rotate(0deg);
+}
+
+/* Optional: the space's name hidden, its icon kept. The top row is as wide
+   as the name, so a long one widened the sidebar and it changed size from
+   space to space; with no icon, nothing is left to show. */
+
+/* With the space's name left above the tabs, as Zen has it (Zia's settings), the
+   slot it would go in is out of the top row too: empty, it still stretched across
+   the row and kept its buttons pushed to the end, where Zia puts them, and moving
+   them in Customize Toolbar didn't bring them back */
+:root[zia-space-name-in-list] #zia-workspace-slot {
+  display: none !important;
+}
+
+/* The name sits a little low to line up with macOS's traffic lights beside it.
+   With no window buttons in the row (Windows and Linux keep them top right), it's
+   level with the row's own buttons instead: 1.5px low beside them, the space's
+   icon and name looked off centre */
+#zen-sidebar-top-buttons:not(:has(> .titlebar-buttonbox-container)) #zia-workspace-slot > .zen-current-workspace-indicator {
+  translate: none !important;
+}
+
+@media -moz-pref("zen.theme.essentials-favicon-bg") {
+  .tabbrowser-tab[zen-essential][visuallyselected] > .tab-stack > .tab-background {
+    --zen-essential-bg-margin: 3px !important;
+    --zen-essential-tab-selected-bg: rgba(92, 92, 94, 0.72) !important;
+    --zen-essential-tab-selected-bg-hover: rgba(102, 102, 104, 0.66) !important;
+    outline: none !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16) !important;
+
+    /* cut to Zia's squircle with a mask: Zen cuts the icon's blurred
+       colour round it to the essential's edge with overflow, and Firefox
+       cuts that to a round corner whatever its corner-shape, so the chosen
+       essential came out rounder than the rest. Each corner is the exact
+       squircle (superellipse(1.93)) at the essential's radius, and two bars
+       fill between them, so it fits any width, a pixel into the corners:
+       meeting them edge to edge, the seams showed as dark lines across
+       the tile while it was held down, shrunk to a part of a pixel off. */
+    --zia-sq-r: calc(var(--zia-essential-radius) * var(--zia-squircle-grow));
+    mask:
+      var(--zia-sq-tl) 0 0 / var(--zia-sq-r) var(--zia-sq-r) no-repeat,
+      var(--zia-sq-tr) 100% 0 / var(--zia-sq-r) var(--zia-sq-r) no-repeat,
+      var(--zia-sq-bl) 0 100% / var(--zia-sq-r) var(--zia-sq-r) no-repeat,
+      var(--zia-sq-br) 100% 100% / var(--zia-sq-r) var(--zia-sq-r) no-repeat,
+      linear-gradient(#000 0 0) calc(var(--zia-sq-r) - 1px) 0 / calc(100% - 2 * var(--zia-sq-r) + 2px) 100% no-repeat,
+      linear-gradient(#000 0 0) 0 calc(var(--zia-sq-r) - 1px) / 100% calc(100% - 2 * var(--zia-sq-r) + 2px) no-repeat !important;
+
+    &::after {
+      inset: -30% !important;
+      border-radius: inherit !important;
+      filter: blur(9px) saturate(2.4) brightness(1.15) !important;
+      corner-shape: var(--zia-squircle) !important;
+    }
+
+    &::before {
+      corner-shape: var(--zia-squircle) !important;
+      border-radius: calc(max(0px, calc(var(--zia-essential-radius) - var(--zen-essential-bg-margin) * var(--zia-essential-inner-tighten))) * var(--zia-squircle-grow)) !important;
+      /* (the glass edge, as on the other essentials, a touch thicker so it
+         holds its own against the colour round it) */
+      box-shadow: var(--zia-glass-edge-thick) !important;
+    }
+  }
+}
+
+/* Zen 1.23's floating music notes, over playing tabs and the media card:
+   gone, as Zia's sound bars already show what's playing */
+.zen-media-notes {
+  display: none !important;
+}
+
+.tab-icon-overlay:not([crashed]):is([soundplaying], [muted], [activemedia-blocked]) {
+  list-style-image: var(--zia-sound-wave, url("chrome://sine/content/zia-flat/icons/sound-wave.svg")) !important;
+  -moz-context-properties: fill !important;
+  fill: rgb(255, 255, 255) !important;
+  background-color: rgba(22, 22, 22, 0.86) !important;
+  background-image: none !important;
+  border-radius: 999px !important;
+  corner-shape: round !important;
+  outline: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  outline-offset: -0.5px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+  transition: background-color 0.15s ease !important;
+
+  &[muted] {
+    list-style-image: var(--zia-sound-muted, url("chrome://sine/content/zia-flat/icons/sound-muted.svg")) !important;
+    fill: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* a site waiting to play (autoplay blocked): Zen's music note becomes
+     a small play button in the same badge, and a click plays it */
+  &[activemedia-blocked]:not([soundplaying], [muted]) {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/media-blocked.svg") !important;
+
+    &::before,
+    &::after {
+      content: none !important;
+      background: none !important;
+      mask: none !important;
+    }
+  }
+
+  &:hover {
+    background-color: rgba(48, 48, 48, 0.92) !important;
+  }
+}
+
+/* Selected tab: the white glow around it picks up a hint of the favicon's
+   colours. Mostly white, barely stronger than the plain glow. */
+
+/* Windows: the page's corners are Zen's own there, worked out from the
+   window's corner (zen.theme.border-radius) so the two sit evenly one
+   inside the other. Zia's 10.5px looked rounder than the window round it,
+   and the window's corner less the whole gap too sharp. */
+
+/* The last essential stretches across whatever's left of its row */
+
+/* Zia's narrower essentials (off: Zen's own widths) */
+:root[zen-sidebar-expanded="true"] .zen-essentials-container {
+    &,
+    &[data-hack-type] {
+      /* (auto-fit: a row of fewer essentials than would fit still spans the
+         sidebar, the columns left over folded away, and no column comes and
+         goes under them as the sidebar widens) */
+      grid-template-columns: repeat(auto-fit, minmax(var(--zia-essential-min-width), 1fr)) !important;
+    }
+
+    /* (no widest: a full row's columns are never wider than two of the
+       narrowest anyway, and a short row's essentials fill it) */
+    & > .tabbrowser-tab[zen-essential] {
+      min-width: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+    }
+  }
+
+/* Optional: two essentials to a row, however wide the sidebar, so it can
+   be made as narrow as Zen's own allows with the tiles still a good size */
+
+:is(
+  .tabbrowser-tab[zen-essential]:not([visuallyselected]),
+  .tabbrowser-tab:not([zen-essential])[visuallyselected]
+) > .tab-stack > .tab-background {
+  position: relative;
+}
+
+/* The selected tab: its highlight and glow, and its fine shine round its
+   edge (essentials have the glass edge instead, 06) */
+.tabbrowser-tab:not([zen-essential])[visuallyselected] > .tab-stack > .tab-background {
+  background: var(--zia-active-tab-bg) !important;
+  box-shadow:
+    0 0 var(--zia-active-glow-blur) var(--zia-active-glow-spread) var(--zia-active-glow-color),
+    0 calc(-1 * var(--zia-active-glow-reach)) var(--zia-active-glow-blur) var(--zia-active-glow-spread) var(--zia-active-glow-color),
+    0 var(--zia-active-glow-reach) var(--zia-active-glow-blur) var(--zia-active-glow-spread) var(--zia-active-glow-color) !important;
+
+  &::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    padding: var(--zia-shine-width) !important;
+    border-radius: inherit !important;
+    corner-shape: round !important;
+    pointer-events: none !important;
+    background: var(--zia-tab-shine-layers) !important;
+    filter: none !important;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0) !important;
+  }
+}
+
+.tabbrowser-tab:not([zen-essential]) {
+  --zen-active-tab-scale: 1 !important;
+}
+
+/* An essential keeps Zen's press, without its 0.01deg turn that puts it on the
+   GPU: the first press after a start, the squircle tile with the glass edge
+   showed a black cross as it was drawn there in pieces */
+.tabbrowser-tab[zen-essential]:active {
+  rotate: none !important;
+}
+
+/* Optional: no glow around the selected tab (or a split's group), just
+   its highlight and fine edge; the favicon-tinted glow goes with it */
+:root:not(#zia-none) {
+    --zia-active-glow-color: transparent;
+    /* (and a light space's soft shadow in its place, 23-light-spaces.css) */
+    --zia-light-tab-lift: transparent;
+    & .tabbrowser-tab:not([zen-essential])[visuallyselected] > .tab-stack > .tab-background,
+    & tab-group[split-view-group] > .tab-group-container {
+      box-shadow: none !important;
+    }
+  }
+
+#zia-workspace-slot .zen-current-workspace-indicator-name,
+#zia-space-label {
+  color: rgb(255, 255, 255) !important;
+}
+
+:root[zia-space-colored="true"] #zia-workspace-slot .zen-current-workspace-indicator-name,
+:root[zia-space-colored="true"] #zia-space-label {
+  color: color-mix(in srgb, var(--zen-primary-color, white) var(--zia-space-name-tint), white) !important;
+}
+
+/* A tab with no icon of its own shows a plain translucent square (no logo) */
+.tabbrowser-tab:not([busy], [crashed]) .tab-icon-image:is(:not([src]), [src=""], :-moz-broken, [src="chrome://branding/content/icon32.png"], [src="chrome://global/skin/icons/defaultFavicon.svg"]) {
+  content: url("chrome://sine/content/zia-flat/icons/tab-blank.svg") !important;
+}
+
+/* Asleep (unloaded) tabs and essentials fade their icon and title to about
+   half; a folder does too once every tab in it is asleep. The selected tab
+   is always awake. Off by default, on in Zia's settings.
+   The fade is a filter, not opacity: Zen hides a collapsed folder's rows
+   (a folder inside it included) by setting their opacity to 0, and an
+   opacity here overrode that, leaving a nested folder showing in a
+   collapsed one. A filter fades on top of whatever Zen sets. */
+
+/* Split essentials (zia.uc.js): the tile holds both sites, each in a small
+   half of its own, the half you're in lit; the split it opens is hidden
+   from the tab list. */
+.tabbrowser-tab[zia-split-of],
+tab-group[split-view-group]:has(.tabbrowser-tab[zia-split-of]) {
+  display: none !important;
+}
+
+/* no wider than the other essentials, whatever its halves want */
+.tabbrowser-tab[zen-essential][zia-split-tile] {
+  min-width: 0 !important;
+}
+
+.tabbrowser-tab[zen-essential][zia-split-tile] > .tab-stack {
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.tabbrowser-tab[zen-essential][zia-split-tile] > .tab-stack > .tab-content {
+  position: relative;
+  z-index: 1;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 8px !important;
+  margin: 0 !important;
+
+  & > .tab-icon-stack {
+    display: none !important;
+  }
+
+  & > .zia-split-half {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: calc(50% - 3px) !important;
+    height: 100% !important;
+    aspect-ratio: 4 / 5;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: calc(var(--zia-essential-radius) * var(--zia-squircle-grow));
+    corner-shape: var(--zia-squircle) !important;
+    background-color: rgba(0, 0, 0, 0.18);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  & > .zia-split-half > image {
+    width: 16px;
+    height: 16px;
+  }
+
+  & > .zia-split-half > .zia-split-title {
+    display: none;
+  }
+}
+
+/* a stand-in, not an essential's size: halves as tall as the real ones
+   (zia.uc.js), centred */
+.tabbrowser-tab[zen-essential][zia-split-tile][zia-essential-proxy] > .tab-stack > .tab-content {
+  padding-block: 0 !important;
+  align-items: center !important;
+
+  & > .zia-split-half {
+    height: var(--zia-split-half-height, calc(100% - 16px)) !important;
+  }
+}
+
+.tabbrowser-tab[zen-essential][zia-split-tile][zia-essential-proxy][style*="--zia-split-half-width"] > .tab-stack > .tab-content > .zia-split-half {
+  flex: none !important;
+  width: var(--zia-split-half-width) !important;
+  max-width: none !important;
+  aspect-ratio: auto !important;
+}
+
+.tabbrowser-tab[zen-essential][zia-split-tile][zia-split-focus="a"] > .tab-stack > .tab-content > .zia-split-half[side="a"],
+.tabbrowser-tab[zen-essential][zia-split-tile][zia-split-focus="b"] > .tab-stack > .tab-content > .zia-split-half[side="b"] {
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+/* Dragged off the essentials, the tile turns into the split's row: both
+   sites, icon and title, side by side */
+.tabbrowser-tab[zia-split-tile]:not([zen-essential]) > .tab-stack > .tab-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+
+  & > :not(.zia-split-half) {
+    display: none !important;
+  }
+
+  & > .zia-split-half {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  & > .zia-split-half > image {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  & > .zia-split-half > .zia-split-title {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--zia-text-size, 13px);
+  }
+}
+
+/* The glow and tint: the half you're in, over the whole tile */
+@media -moz-pref("zen.theme.essentials-favicon-bg") {
+  .tabbrowser-tab[zen-essential][zia-split-tile][visuallyselected] > .tab-stack > .tab-background::after {
+    background-image: var(--zia-split-glow, var(--zen-essential-tab-icon)) !important;
+  }
+}
+
+/* Tab numbers (zia.uc.js): hold Cmd/Ctrl and a small key at the end of each
+   tab, and in the corner of each essential, shows the number Cmd/Ctrl+1–9
+   takes you to, drawn as an outlined key like the shortcuts in Zen's own
+   menus and pop-ups. Optionally always shown. */
+.tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number {
+  display: none;
+  flex: none;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  margin: 0 0 0 6px;
+  padding: 0;
+  border-radius: calc(5.5px * var(--zia-squircle-grow));
+  corner-shape: var(--zia-squircle) !important;
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font: 500 10px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  place-items: center;
+  pointer-events: none;
+
+  & > span {
+    display: block;
+    text-box: trim-both cap alphabetic;
+  }
+}
+
+.tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number[zia-wide] {
+  width: auto;
+  min-width: 18px;
+  padding: 0 4px;
+
+  /* the two digits a little closer; the space the last one gives back is
+     made up after it, so the pair stays centred */
+  & > span {
+    letter-spacing: -0.05em;
+    margin-inline-end: 0.05em;
+  }
+}
+
+.tabbrowser-tab[visuallyselected] > .tab-stack > .tab-content > .zia-tab-number {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.68);
+}
+
+/* Essentials, and every tab when the sidebar is collapsed to icons: a
+   smaller key in the corner */
+.tabbrowser-tab[zen-essential] > .tab-stack,
+:root:not([zen-sidebar-expanded="true"]) .tabbrowser-tab > .tab-stack {
+  position: relative;
+}
+
+:is(.tabbrowser-tab[zen-essential], :root:not([zen-sidebar-expanded="true"]) .tabbrowser-tab) > .tab-stack > .tab-content > .zia-tab-number {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  border-radius: calc(4.25px * var(--zia-squircle-grow));
+  background-color: rgba(28, 28, 30, 0.45);
+  font-size: 8.75px;
+}
+
+:is(.tabbrowser-tab[zen-essential], :root:not([zen-sidebar-expanded="true"]) .tabbrowser-tab) > .tab-stack > .tab-content > .zia-tab-number[zia-wide] {
+  width: auto;
+  min-width: 15px;
+  padding: 0 2.5px;
+}
+
+:root[zia-tab-numbers] .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number {
+  display: grid;
+  animation: zia-tab-number-in 0.16s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* The number being typed: its key lights up, in Zia blue or the space's
+   colour, until the key is let go and the tab chosen */
+.tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number[zia-target] {
+  background-color: #5ab9f5 !important;
+  box-shadow: none;
+  color: rgb(8, 24, 38);
+}
+
+:root[zia-tab-number-color="space"][zia-space-colored="true"] .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number[zia-target] {
+  background-color: color-mix(in srgb, var(--zen-primary-color) 80%, black) !important;
+  color: rgb(255, 255, 255);
+}
+
+@keyframes zia-tab-number-in {
+  from {
+    opacity: 0;
+    translate: 4px 0;
+  }
+}
+
+/* let go: they slide back off to the right, as they came in */
+:root[zia-tab-numbers-leaving]:not([zia-tab-numbers]) .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number {
+  display: grid;
+  animation: zia-tab-number-out 0.1s cubic-bezier(0.4, 0, 0.8, 0.4) forwards;
+}
+
+@keyframes zia-tab-number-out {
+  to {
+    opacity: 0;
+    translate: 4px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[zia-tab-numbers] .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number {
+    animation: none;
+  }
+
+  :root[zia-tab-numbers-leaving]:not([zia-tab-numbers]) .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number {
+    display: none;
+  }
+}
+
+@property --zia-folder-bottom-extra {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+:root[zen-sidebar-expanded="true"] tab-group:not([split-view-group]) {
+  display: flex !important;
+  flex-direction: column !important;
+  margin-block: 0 !important;
+  margin-inline-end: 0 !important;
+
+  & > .tab-group-container {
+    margin-inline-start: 0 !important;
+
+    &::after {
+      content: none !important;
+    }
+
+    & > :is(.tabbrowser-tab, tab-group, zen-folder) {
+      margin-inline-start: 14px !important;
+    }
+
+    & > tab-group:not([split-view-group]) {
+      margin-block: 0 !important;
+    }
+  }
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) {
+  --zia-folder-box-top: var(--tab-margin-block);
+  --zia-folder-inner-gap: 5px;
+  --zia-folder-box-bottom: 0px;
+  --zia-folder-box-right: var(--zia-folder-right-fix, 0px);
+  --zia-folder-box-left: var(--zia-folder-left-fix, 0px);
+  --zia-folder-box-radius: var(--zia-folder-radius);
+
+  position: relative;
+  isolation: isolate;
+  transition: none !important;
+
+  &[collapsed]:not([has-active], :has(tab[selected], tab[atg-folder-active])) {
+    --zia-folder-box-bottom: var(--tab-margin-block);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: var(--zia-folder-box-top) var(--zia-folder-box-right) calc(var(--zia-folder-box-bottom) - var(--zia-folder-bottom-extra)) var(--zia-folder-box-left);
+    z-index: -1;
+    border-radius: calc(var(--zia-folder-box-radius) * var(--zia-squircle-row-grow));
+    corner-shape: var(--zia-squircle-row) !important;
+    pointer-events: none;
+    background-color: transparent;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: var(--zia-folder-box-top) var(--zia-folder-box-right) calc(var(--zia-folder-box-bottom) - var(--zia-folder-bottom-extra)) var(--zia-folder-box-left);
+    /* Dia's row squircle; the fine shine round it a hairline ring, its
+       inside cut by the same squircle a hairline in (each corner exact,
+       two bars between), as a plain content-box cut stays square inside */
+    --zia-folder-hole: calc(var(--zia-folder-box-radius) * var(--zia-squircle-row-grow) - var(--zia-shine-width));
+    border-radius: calc(var(--zia-folder-box-radius) * var(--zia-squircle-row-grow));
+    corner-shape: var(--zia-squircle-row) !important;
+    pointer-events: none;
+    /* (Dia's row shine, measured off its folder rows: along the top and
+       bottom only, fading to nothing over half of each corner's length, so
+       the corners are about half as bright and the ends unlit) */
+    --zia-row-fade: calc(var(--zia-folder-box-radius) * var(--zia-squircle-row-grow) * 0.55);
+    background: linear-gradient(to right, transparent, var(--zia-shine-row-ink) var(--zia-row-fade), var(--zia-shine-row-ink) calc(100% - var(--zia-row-fade)), transparent);
+    mask:
+      linear-gradient(#000 0 0),
+      var(--zia-row-tl) var(--zia-shine-width) var(--zia-shine-width) / var(--zia-folder-hole) var(--zia-folder-hole) no-repeat,
+      var(--zia-row-tr) calc(100% - var(--zia-shine-width)) var(--zia-shine-width) / var(--zia-folder-hole) var(--zia-folder-hole) no-repeat,
+      var(--zia-row-bl) var(--zia-shine-width) calc(100% - var(--zia-shine-width)) / var(--zia-folder-hole) var(--zia-folder-hole) no-repeat,
+      var(--zia-row-br) calc(100% - var(--zia-shine-width)) calc(100% - var(--zia-shine-width)) / var(--zia-folder-hole) var(--zia-folder-hole) no-repeat,
+      linear-gradient(#000 0 0) calc(var(--zia-shine-width) + var(--zia-folder-hole) - 1px) var(--zia-shine-width) / calc(100% - 2 * var(--zia-shine-width) - 2 * var(--zia-folder-hole) + 2px) calc(100% - 2 * var(--zia-shine-width)) no-repeat,
+      linear-gradient(#000 0 0) var(--zia-shine-width) calc(var(--zia-shine-width) + var(--zia-folder-hole) - 1px) / calc(100% - 2 * var(--zia-shine-width)) calc(100% - 2 * var(--zia-shine-width) - 2 * var(--zia-folder-hole) + 2px) no-repeat;
+    mask-composite: subtract, add, add, add, add, add, add;
+    opacity: 0;
+  }
+
+  &:hover {
+    background-color: transparent !important;
+
+    &::before {
+      background-color: var(--zia-folder-hover-bg);
+    }
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  & > .tab-group-label-container {
+    &::before,
+    &:hover::before {
+      background-color: transparent !important;
+    }
+
+    & > label {
+      color: rgb(255, 255, 255) !important;
+      font-weight: var(--zia-folder-weight) !important;
+      text-align: start !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &::after {
+        content: "";
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        margin-inline-start: 4px;
+        vertical-align: -2px;
+        opacity: var(--zia-folder-mark-opacity);
+        /* (drawn in the text's colour as a stroke, not a filled square cut to shape by a
+           mask: turned to point right, at a scale that makes it a part pixel wide, as on
+           Windows at 125%, the square's edge showed as a line over a closed folder's arrow) */
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='context-stroke' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+        -moz-context-properties: stroke;
+        stroke: currentColor;
+        transform-origin: center;
+        transition: rotate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+      }
+    }
+  }
+
+  &[collapsed] > .tab-group-label-container > label::after {
+    rotate: -90deg;
+  }
+
+  /* The box stops a tab gap above whatever's below, the same gap as
+   * between two tabs, and the padding inside makes up for it. The tabs sit
+   * the inner gap closer to the folder's name (the room under the name was
+   * more than above it), so the padding fits in the height a tab dragged in
+   * is given. Open or closed alike: switched off as a folder closed, its
+   * tabs dropped that gap before closing. The padding is the list's, not
+   * the folder's: Zen hides a folder by taking its height away (the
+   * workspace's folders tucked away), and a folder's own padding stayed,
+   * leaving a sliver for each. */
+  &:not(:has(> .tab-group-container[hidden])) {
+    --zia-folder-box-bottom: var(--tab-margin-block);
+  }
+
+  & > .tab-group-container:not([hidden]) {
+    box-sizing: border-box;
+    margin-top: calc(-1 * var(--zia-folder-inner-gap)) !important;
+    padding-bottom: var(--zia-folder-inner-gap) !important;
+  }
+
+  /* (a folder in a folder: in by the same on the left as at the top level, as its right
+     side is, so its name sits as far into its box inside a folder as outside one, and it
+     lands where the dragged one was shown) */
+  & :is(zen-folder, tab-group:not([split-view-group])) {
+    --zia-folder-box-right: calc(var(--zia-folder-right-fix, 0px) + var(--zia-folder-inner-gap));
+    --zia-folder-box-bottom: var(--tab-margin-block);
+  }
+
+  & :is(zen-folder, tab-group:not([split-view-group])) :is(zen-folder, tab-group:not([split-view-group])) {
+    --zia-folder-box-right: calc(var(--zia-folder-right-fix, 0px) + 2 * var(--zia-folder-inner-gap));
+  }
+}
+
+#zen-sidebar-top-buttons .titlebar-buttonbox-container {
+  margin-inline-start: 5px !important;
+  margin-top: 3px !important;
+  margin-bottom: 0 !important;
+}
+
+/* Optionally, no minimise, maximise and close at all (on Windows and Linux),
+   wherever they sit, for anyone who uses the keyboard for those */
+@media not (-moz-platform: macos) {
+}
+
+:root[zen-sidebar-expanded="true"] #tabbrowser-tabs {
+  --tab-min-height: var(--zia-tab-height) !important;
+  --tab-margin-block: var(--zia-tab-gap) !important;
+}
+
+.tabbrowser-tab:not([zen-essential]) .tab-label-container {
+  font-size: var(--zia-text-size) !important;
+  font-weight: var(--zia-tab-weight) !important;
+}
+
+/* A pinned tab moved off its page: the button over its icon that takes it
+   back has the tab's own corner (Zen gave it its own, rounder one), and
+   its light on hover sits just inside the tab's fine edge rather than over
+   it (over it, the edge showed brighter there): a clear border the edge's
+   width keeps it in. While its "Separate from pinned tab" line shows under
+   the name, the two are centred together in the row (they sat low). */
+.tabbrowser-tab:not([zen-essential]) .tab-reset-pin-button {
+  border-radius: var(--zia-tab-radius) 0 0 var(--zia-tab-radius) !important;
+  corner-shape: round !important;
+  border: var(--zia-shine-width) solid transparent !important;
+  border-right-width: 0 !important;
+  background-clip: padding-box !important;
+}
+
+.tabbrowser-tab:not([zen-essential]) .tab-label-container {
+  transition: translate 0.1s ease-in-out;
+}
+
+.tabbrowser-tab:not([zen-essential]):is([zen-show-sublabel], [zen-pinned-changed="true"]:has(.tab-reset-pin-button:hover)) .tab-label-container {
+  translate: 0 -2px;
+}
+
+.tabbrowser-tab:not([zen-essential]) > .tab-stack > .tab-background,
+.tabbrowser-tab:not([zen-essential]) > .tab-stack > .tab-background::before,
+.tabbrowser-tab:not([zen-essential]) > .tab-stack > .tab-background::after {
+  border-radius: var(--zia-tab-radius) !important;
+  corner-shape: round !important;
+}
+
+.tabbrowser-tab:not([zen-essential]) > .tab-stack > .tab-background {
+  overflow: hidden !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group]))[zia-bg-shift] {
+  overflow: visible !important;
+
+  &::before,
+  &::after {
+    top: calc(var(--zia-folder-box-top) + var(--zia-drag-bg-top, 0px)) !important;
+    bottom: calc(var(--zia-folder-box-bottom) - var(--zia-folder-bottom-extra, 0px) - var(--zia-drag-bg-grow, 0px)) !important;
+    transition: top 100ms ease-out, bottom 100ms ease-out !important;
+  }
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group]))[zia-drop-slot]::before {
+  background-color: var(--zia-folder-hover-bg) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group]))[zia-drop-slot]::after {
+  opacity: 1 !important;
+}
+
+/* The folder a tab was dragged out of isn't highlighted, though Firefox
+   keeps it hovered until the mouse next moves (tab dragging) */
+:root[zen-sidebar-expanded="true"]:not(#zia-none) :is(zen-folder, tab-group:not([split-view-group]))[zia-left]:not([zia-drop-slot]) {
+  &::before {
+    background-color: transparent !important;
+  }
+
+  &::after {
+    opacity: 0 !important;
+  }
+}
+
+:root #tabbrowser-tabs:is([zia-settling], [movingtab]) .tabbrowser-tab[zia-drag-away],
+:root #tabbrowser-tabs .tabbrowser-tab[zia-drag-away][zia-dragging],
+.tabbrowser-tab[zia-drag-away] {
+  opacity: 0 !important;
+}
+
+#zia-drag-thumb {
+  position: fixed;
+  z-index: 2147483647;
+  translate: -50% -50%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background-color: #1f1f1f;
+  overflow: hidden;
+  transition: width 150ms ease-out, height 150ms ease-out;
+
+  &[zia-leaving] {
+    transition: width 150ms ease-out, height 150ms ease-out, left 150ms ease-out, top 150ms ease-out;
+  }
+
+  &[zia-card] {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  }
+
+  & > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  & > img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* as Dia's morphs: the page's picture comes into focus out of a blur as
+     the row grows into it, and blurs away as it shrinks back */
+  @media (prefers-reduced-motion: no-preference) {
+    & > * {
+      animation: zia-morph-focus 150ms ease-out backwards;
+      transition: filter 120ms ease-in, opacity 120ms ease-in;
+    }
+
+    &[zia-leaving] > * {
+      filter: blur(6px);
+      opacity: 0;
+    }
+  }
+}
+
+@keyframes zia-morph-focus {
+  from {
+    filter: blur(6px);
+    opacity: 0;
+  }
+}
+
+#zia-split-drag-picture {
+  visibility: hidden !important;
+}
+
+:root #tabbrowser-tabs:is([zia-settling], [movingtab]) .tabbrowser-tab[zia-to-essential],
+:root #tabbrowser-tabs .tabbrowser-tab[zia-to-essential][zia-dragging],
+.tabbrowser-tab[zia-to-essential],
+[split-view-group][zia-to-essential],
+[split-view-group][zia-to-essential] .tabbrowser-tab {
+  opacity: 0 !important;
+}
+
+/* a split's tabs are kept showing while they're dragged (05-tab-dragging),
+   which outranked the fade above as the split turns into a tile */
+:root #tabbrowser-tabs [split-view-group][zia-to-essential],
+:root #tabbrowser-tabs[movingtab] [split-view-group][zia-to-essential] :is(.tabbrowser-tab, .tab-group-label-container, tab-group),
+:root #tabbrowser-tabs[movingtab] [split-view-group][zia-to-essential] :is(.tabbrowser-tab, .tab-group-label-container):is([zia-dragging], [zia-shift]) {
+  opacity: 0 !important;
+}
+
+.tabbrowser-tab[zia-essential-proxy] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* out over the page, where its page's picture stands in (an inline style
+   can't hide it against the rule above: this sheet's !important wins) */
+.tabbrowser-tab[zia-essential-proxy][zia-over-page] {
+  visibility: hidden !important;
+}
+
+.tabbrowser-tab[zen-essential] > .tab-stack > .tab-background {
+  border-radius: calc(var(--zia-essential-radius) * var(--zia-squircle-grow)) !important;
+  corner-shape: var(--zia-squircle) !important;
+}
+
+:root[zen-sidebar-expanded="true"] #zen-essentials {
+  --tab-min-height: var(--zia-essential-height) !important;
+}
+
+:root[zen-sidebar-expanded="true"] .zen-essentials-container:not(:empty) {
+  gap: var(--zia-essential-gap) !important;
+  padding-bottom: var(--zia-essential-bottom-space) !important;
+}
+
+.tabbrowser-tab[zen-essential]:not([visuallyselected]) > .tab-stack > .tab-background {
+  background: var(--zia-essential-bg) !important;
+  box-shadow: var(--zia-glass-edge) !important;
+  transition: none !important;
+}
+
+.tabbrowser-tab[zen-essential]:not([visuallyselected]):hover > .tab-stack > .tab-background {
+  background: rgba(255, 255, 255, 0.16) !important;
+  transition: none !important;
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container > label {
+  font-size: var(--zia-text-size) !important;
+  /* in line with the tabs' names below (it started a point and a half left) */
+  translate: 1.5px 0;
+}
+
+#urlbar:not([breakout-extend]) :is(.urlbar-input, #zia-url-title, #zia-url-plain) {
+    font-size: var(--zia-text-size) !important;
+  }
+
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button) > .toolbarbutton-icon {
+  opacity: 0.6 !important;
+}
+
+/* The + and "New Tab" line up with the tabs' icons and names above (they
+   sat a pixel and a half to the left) */
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button) > :is(.toolbarbutton-icon, .toolbarbutton-text) {
+  translate: 1.5px 0;
+}
+
+/* "New Tab" is the size and weight of the tabs' names (it kept Zen's own,
+   a little bigger) */
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button) > .toolbarbutton-text {
+  font-size: var(--zia-text-size) !important;
+  font-weight: var(--zia-tab-weight) !important;
+}
+
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button):hover {
+  background: var(--zia-tab-hover-bg) !important;
+  background-color: var(--zia-tab-hover-bg) !important;
+}
+
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button) {
+  border-radius: var(--zia-tab-radius) !important;
+  corner-shape: round !important;
+}
+
+:is(#tabs-newtab-button, #vertical-tabs-newtab-button):is(:active, [open]) {
+  scale: 1 !important;
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container .tab-group-folder-icon {
+  translate: 0 var(--zia-folder-icon-offset);
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container .tab-group-folder-icon svg:not(:has(.icon image:not([href=""]))) {
+  scale: 0.9;
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container .tab-group-folder-icon svg:has(.icon image:not([href=""])) {
+  & :is(.back, .front, .dots) {
+    display: none !important;
+  }
+
+  & .icon {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  & .icon image {
+    transform: translate(6px, 7px) scale(1.38) !important;
+  }
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container .tab-group-folder-icon:not(:has(.icon image:not([href=""]))) {
+  background-color: var(--zia-folder-mark-color);
+  mask: url("chrome://sine/content/zia-flat/icons/tab-default.svg") center / 16px no-repeat;
+  translate: 0 0;
+
+  & svg :is(.back, .front, .dots) {
+    display: none !important;
+  }
+}
+
+#zen-sidebar-top-buttons {
+  margin-block: calc(var(--zia-top-row-space) - 2.5px) !important;
+}
+
+#zen-sidebar-foot-buttons {
+  margin-block: var(--zia-bottom-row-space) calc(var(--zia-bottom-row-space) - 4.5px) !important;
+}
+
+:root[zen-sidebar-expanded="true"] zen-folder {
+  &[zia-folder-color="green"] { --zia-folder-swatch: var(--zia-fc-green); }
+  &[zia-folder-color="blue"] { --zia-folder-swatch: var(--zia-fc-blue); }
+  &[zia-folder-color="purple"] { --zia-folder-swatch: var(--zia-fc-purple); }
+  &[zia-folder-color="amber"] { --zia-folder-swatch: var(--zia-fc-amber); }
+  &[zia-folder-color="pink"] { --zia-folder-swatch: var(--zia-fc-pink); }
+  &[zia-folder-color="red"] { --zia-folder-swatch: var(--zia-fc-red); }
+  &[zia-folder-color="orange"] { --zia-folder-swatch: var(--zia-fc-orange); }
+
+  &[zia-folder-color]::after {
+    opacity: 1;
+  }
+
+  &[zia-folder-color]::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-wash), transparent);
+  }
+
+  &[zia-folder-color]:hover::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-tint), transparent);
+  }
+}
+
+/* Optionally, a closed coloured folder is just its coloured name: the
+   tint and outline come in on hover and stay while it's open (or showing
+   its open tab, or taking a dragged tab) */
+
+/* Advanced Tab Groups: a group wears its own colour; gradients arrive via --zia-group-swatch (zia.uc.js) */
+:root[zen-sidebar-expanded="true"] tab-group:not([split-view-group]) {
+  --zia-folder-swatch: var(--zia-group-swatch, var(--tab-group-background-color, var(--tab-group-color, var(--zia-fc-white))));
+
+  &::after {
+    opacity: 1;
+  }
+
+  &::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-wash), transparent);
+  }
+
+  &:hover::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-tint), transparent);
+  }
+
+  &[zia-drop-slot]::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-wash), transparent) !important;
+  }
+}
+
+#zia-space-label {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+  padding: 0 8px;
+  height: var(--zia-space-pill-height);
+  /* Dia's space name, fitted off its pill edge by edge: a squircle,
+     superellipse(1.5), over a 14px corner (Zia's was a round 10px) */
+  border-radius: 14px;
+  corner-shape: superellipse(1.5) !important;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -moz-window-dragging: no-drag;
+}
+
+#zia-space-label[zia-has-icon]::before {
+  content: attr(zia-icon);
+  font-size: 16px;
+  line-height: 1;
+  margin-inline-end: var(--zia-space-icon-gap);
+}
+
+#zia-space-label > .zia-space-svg {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-inline-end: var(--zia-space-icon-gap);
+  color: inherit;
+}
+
+#zia-space-label > .zia-space-svg svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+}
+
+/* Windows draws a tab's site icon a point and a half left of the folders'
+   icons and the New Tab + above it (macOS lines them up): brought in line */
+@media (-moz-platform: windows) {
+  #tabbrowser-tabs .tabbrowser-tab:not([zen-essential]) .tab-icon-stack {
+    translate: 1.5px 0;
+  }
+}
+
+zen-folder > .tab-group-label-container > .zia-folder-close {
+  display: none;
+  list-style-image: url("chrome://browser/skin/zen-icons/close.svg");
+  -moz-context-properties: fill, fill-opacity !important;
+  fill: rgb(255, 255, 255) !important;
+  fill-opacity: var(--zia-folder-mark-opacity) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  width: var(--zia-close-size);
+  height: var(--zia-close-size);
+  min-width: var(--zia-close-size);
+  padding: 4px;
+  border-radius: calc(var(--zia-close-radius) * var(--zia-squircle-grow));
+  corner-shape: var(--zia-squircle) !important;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+zen-folder > .tab-group-label-container:hover > .zia-folder-close,
+zen-folder[zia-hover-held] > .tab-group-label-container > .zia-folder-close {
+  display: flex;
+}
+
+zen-folder > .tab-group-label-container > .zia-folder-close:hover {
+  background-color: var(--zia-close-hover-bg);
+}
+
+/* The slot's arrow as a letter in a one-letter font (the same arrow its
+   picture was, drawn solid; icons/zia-slot-arrow.ttf), so the light that
+   passes through the words as the folder opens starts on it */
+@font-face {
+  font-family: "Zia Slot Arrow";
+  src: url(data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMiXaNTQAAAEoAAAAYGNtYXAADOBTAAABkAAAADRnbHlmo0LvdAAAAcwAAADSaGVhZDD+a24AAACsAAAANmhoZWEG3AQ3AAAA5AAAACRobXR4BgQAAAAAAYgAAAAIbG9jYQBpAAAAAAHEAAAABm1heHAABwBKAAABCAAAACBuYW1lF2PtXwAAAqAAAAB1cG9zdHN4dNgAAAMYAAAALAABAAAAAQAAgO7sOl8PPPUAAQPoAAAAAObsk+kAAAAA5uyT6QCP/8QDgQL4AAAAAwACAAAAAAAAAAEAAAPo/wYAAAQQAAABHgLyAAEAAAAAAAAAAAAAAAAAAAACAAEAAAACAEgABAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwMCAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAPz8/PwAA4ADgAAPo/wYAAAPoAPoAAAAAAAAAAAAAAAAAAAAgAAAB9AAABBAAAAAAAAIAAAADAAAAFAADAAEAAAAUAAQAIAAAAAQABAABAADgAP//AADgAP//IAEAAQAAAAAAAAAAAGkAAAAEAI//xAOBAvgAEQAjADUARwAAJQ8DLwMRPwMfAwMXFw8DLwQ/AxcXITc3HwMPBC8DNzcFHwMPAyEvAz8DAjwECxEUFBELBAQLERQUEQsEDwsEBAsRFBQR0AsEBAsRFBQRAVYRFBQRCwQEC9ARFBQRCwQECwFqFBELBAQLERT9dhQRCwQECxEUvBQRDAQEDBEUAggTEQwEBAwRE/4PERMUEQwEBAzQERMUEQwDAwwMAwMMERQTEdAMBAQMERQTEaYEDBEUExEMBAQMERMUEQwEAAAAAAAABAA2AAEAAAAAAAEADgAAAAEAAAAAAAIABwAOAAMAAQQJAAEAHAAVAAMAAQQJAAIADgAxWmlhIFNsb3QgQXJyb3dSZWd1bGFyAFoAaQBhACAAUwBsAG8AdAAgAEEAcgByAG8AdwBSAGUAZwB1AGwAYQByAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAQIFYXJyb3c=) format("truetype");
+  unicode-range: U+E000;
+}
+
+/* An open empty folder shows a dashed "Drag tabs here" slot exactly where
+ * the first tab will sit (sized from a real tab by zia.uc.js), outlined in
+ * the folder's colour, or a soft white for white and uncoloured folders.
+ * (A folder emptied by moving its last tab out collapses, zia.uc.js.)
+ * While a tab is dragged in, open or collapsed, the tab wears the dashes.
+ * The slot is drawn on the container so Zen's own folder code never sees an
+ * extra element; it shrinks away alongside the folder's collapse (the same
+ * spring, zia.uc.js), and --zia-slot-y moves it with its folder's header
+ * while rows slide aside for a drag. */
+/* The slot's dashes, drawn: a 1px line round the tab's corner, in the
+   colour given as stroke (--zia-slot-dash). Firefox's own dashed border or
+   outline spread its dashes to fit each side, so their gaps fell between
+   pixels and ran grey along the top and bottom. zia.uc.js draws each
+   slot's to its size (two dashes centred on each corner, the sides' spaced
+   evenly between, every one on a whole pixel); this is the stand-in until
+   it has. The slot itself shows its folder's dashes live, from a canvas
+   redrawn to size at every step of a sidebar resize
+   (--zia-slot-dashes-live), so they never stretch. */
+:root {
+  --zia-slot-dashes-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' rx='9.5' fill='none' stroke='context-stroke' stroke-width='2' stroke-dasharray='3 3'/%3E%3C/svg%3E");
+}
+
+:root[zen-sidebar-expanded="true"] zen-folder[zia-empty] {
+  --zia-slot-dash: rgba(255, 255, 255, 0.13);
+  --zia-slot-ink: rgba(255, 255, 255, 0.5);
+  --zia-slot-glint: rgba(255, 255, 255, 0.88);
+
+  /* lightened, so it still stands out against the folder's own tint */
+  &[zia-folder-color]:not([zia-folder-color="white"]) {
+    --zia-slot-dash: color-mix(in srgb, color-mix(in srgb, var(--zia-folder-swatch), white 45%) 35%, transparent);
+  }
+
+  & > .tab-group-container::after {
+    content: "\E000\2002 Drag tabs here";
+    font-family: "Zia Slot Arrow", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: var(--zia-slot-h, var(--tab-min-height, 35px));
+    margin-block: var(--zia-slot-mt, 2px) var(--zia-slot-mb, 2px);
+    margin-inline: var(--zia-slot-ms, 16px) var(--zia-slot-me, 7px);
+    overflow: hidden;
+    background: var(--zia-slot-dashes-live, var(--zia-slot-dashes-image)) 0 0 / 100% 100% no-repeat;
+    -moz-context-properties: stroke;
+    stroke: var(--zia-slot-dash);
+    border-radius: var(--zia-tab-radius);
+    color: var(--zia-slot-ink);
+    font-size: 12.5px;
+    white-space: nowrap;
+    translate: 0 var(--zia-slot-y, 0px);
+    pointer-events: none;
+    /* (there at once as the folder opens, as its tabs are; it fades as it
+       closes, below) */
+    transition:
+      opacity 0s,
+      translate 100ms ease-out;
+  }
+
+  /* As the folder opens, a light passes once through the words, left to
+     right, the way an AI's answer shines while it's written, then they rest
+     in their usual grey (the light is the words' background, cut to their
+     letters, the arrow's among them; the dashes stay as they are) */
+  &:not([collapsed]) > .tab-group-container::after {
+    background:
+      linear-gradient(100deg, var(--zia-slot-ink) 40%, var(--zia-slot-glint) 50%, var(--zia-slot-ink) 60%) 0 0 / 300% 100% no-repeat,
+      var(--zia-slot-dashes-live, var(--zia-slot-dashes-image)) 0 0 / 100% 100% no-repeat;
+    background-clip: text, border-box;
+    color: transparent;
+    animation: zia-slot-shine 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.15s both;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  /* Like a tab, it stays where it sits while the folder opens over it or
+     closes on it (fading out as it closes), and only gives up its room once
+     the folder has shut: the folder's own time, the spring's with folders'
+     spring on, otherwise Zen's (0.18s) */
+
+  /* (a folder inside a closed folder keeps it hidden too: with a tab
+     selected in the outer folder, Zen shows that tab alone) */
+  /* (it fades as the folder's tabs do as it closes over them, 06-tab-
+     animations: quicker, it was gone before the folder had moved, a snap) */
+  &[collapsed] > .tab-group-container::after,
+  :is(zen-folder, tab-group:not([split-view-group]))[collapsed] & > .tab-group-container::after {
+    height: 0;
+    margin-block: 0;
+    opacity: 0;
+    transition:
+      height 0s var(--zia-slot-time, 0.18s),
+      margin 0s var(--zia-slot-time, 0.18s),
+      opacity 220ms ease-in,
+      translate 100ms ease-out;
+  }
+  /* (there it shrinks away with the rest Zen hides, rather than waiting
+     for a folder of its own to shut) */
+  :is(zen-folder, tab-group:not([split-view-group]))[collapsed] &:not([collapsed]) > .tab-group-container::after {
+    transition:
+      height var(--zia-slot-time, 0.18s) cubic-bezier(0.42, 0, 0.58, 1),
+      margin var(--zia-slot-time, 0.18s) cubic-bezier(0.42, 0, 0.58, 1),
+      opacity var(--zia-slot-time, 0.18s) ease-out,
+      translate 100ms ease-out;
+  }
+
+  /* A tab dragged in takes the slot's place: the slot fades but keeps its
+   * room (the layout never changes mid-drag), and the tab, which would
+   * cover it anyway, carries its dashes instead (below). */
+  &[zia-drop-slot]:not([collapsed]) > .tab-group-container::after {
+    opacity: 0;
+    transition: opacity 100ms ease;
+  }
+
+  /* (back as a tab dragged in goes out again, it fades in) */
+  :root[zia-dragging-tab] &:not([collapsed]) > .tab-group-container::after {
+    transition:
+      opacity 100ms ease,
+      translate 100ms ease-out;
+  }
+
+  &:has(> .tab-group-label-container[zia-dragging]) > .tab-group-container::after {
+    transition: none;
+  }
+}
+
+/* A tab dragged into an empty folder, open or collapsed, wears the slot's
+ * dashes, so the drop spot stays marked while the tab is over it. */
+:root[zen-sidebar-expanded="true"] .tabbrowser-tab[zia-dragging][zia-into-empty] > .tab-stack > .tab-background {
+  background-image: var(--zia-slot-dashes-image) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  -moz-context-properties: stroke !important;
+  stroke: var(--zia-slot-dash) !important;
+}
+
+:root[zen-sidebar-expanded="true"] tab-group[split-view-group][zia-dragging][zia-into-empty] > .tab-group-container {
+  outline: 1px dashed var(--zia-slot-dash) !important;
+  outline-offset: -1px !important;
+}
+
+/* A coloured folder keeps its usual colour while a tab is dragged into it
+ * (its shine marks it as the target): not the plain hover wash, and not the
+ * hover tint either, which flickered off and on again as the tab dropped. */
+:root[zen-sidebar-expanded="true"] zen-folder[zia-folder-color]:not([zia-folder-color="white"])[zia-drop-slot]::before {
+  background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-wash), transparent) !important;
+}
+
+/* The selected tab stays dark on a folder's lighter box, as in Dia: its
+ * see-through black would otherwise take on the box's lightening and turn
+ * grey. Set only while the box shows (hovered, held, taking a drop, or
+ * coloured), so on a bare folder it matches the tabs outside. */
+:root[zen-sidebar-expanded="true"] :is(zen-folder:is(:hover, [zia-hover-held], [zia-drop-slot], [zia-folder-color]), tab-group:not([split-view-group])) {
+  --zia-active-tab-bg: var(--zia-active-tab-bg-folder);
+}
+
+/* A folder just dropped keeps its hover box until the pointer leaves
+   (tab dragging, zia-hover-held) */
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group]))[zia-hover-held] {
+  &::before {
+    background-color: var(--zia-folder-hover-bg);
+  }
+
+  &::after {
+    opacity: 1;
+  }
+
+  &:is([zia-folder-color], tab-group)::before {
+    background-color: color-mix(in srgb, var(--zia-folder-swatch) var(--zia-folder-tint), transparent);
+  }
+}
+
+/* While a folder opens or closes, its tabs sit in their places and the
+   folder clips them as its height grows or shrinks (zia.uc.js) */
+.tab-group-container[zia-folder-holding] {
+  overflow-y: clip !important;
+}
+
+/* A space collapsed (its name clicked) with a tab open in one of its
+   folders: Zen keeps just that tab, and hides its folder's name too. The
+   folder's name stays (and any folder it's in), so the tab isn't left
+   floating on its own. Marked on the space while it's collapsed and until
+   it has finished opening again (zia.uc.js): Zen leaves the name at no
+   height, which showed for a moment as it opened. */
+zen-workspace[zia-keep-folder-names] :is(zen-folder, tab-group:not([split-view-group])):has(.tabbrowser-tab[selected]) > .tab-group-label-container {
+  /* (Zen's own height for it, which its collapse animates to nothing) */
+  height: calc(var(--tab-margin-block) * 2 + var(--tab-min-height)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ...and the tab keeps its place under it: Zen pulls it out to the edge
+   when the space collapses, as it would be with its folder hidden */
+zen-workspace[zia-keep-folder-names] .tab-group-container > :is(.tabbrowser-tab[selected], tab-group[split-view-group]:has(.tabbrowser-tab[selected])) {
+  --zen-folder-indent: 14px !important;
+}
+
+/* The same inside a closed folder showing its selected tab: a folder in it
+   holding that tab (or the one it goes on showing once another is
+   selected) keeps its name, with the tab under it, as it would be
+   open. Zen hides the name and pulls the tab out to the closed folder's
+   edge, which left the inner folder's box round the lone tab. (Not with the
+   space's pinned tabs tucked away, which hide the closed folder's name and
+   that tab: the inner folder's name was left there on its own.) */
+:root:not(#zia-none) zen-folder[collapsed]:is([has-active], [zia-was-active]):not(zen-workspace[collapsedpinnedtabs] *) :is(zen-folder, tab-group:not([split-view-group])):is(:has(.tabbrowser-tab:is([selected], [folder-active="true"])), [zia-keeps-name]) > .tab-group-label-container,
+:root:not(#zia-none) zen-folder[zia-revealing] [zia-keeps-name] > .tab-group-label-container {
+  height: calc(var(--tab-margin-block) * 2 + var(--tab-min-height)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+:root:not(#zia-none) zen-folder[collapsed]:is([has-active], [zia-was-active]) :is(zen-folder, tab-group:not([split-view-group])) > .tab-group-container > :is(.tabbrowser-tab:is([selected], [folder-active="true"], [zia-kept-tab]), tab-group[split-view-group]:has(.tabbrowser-tab:is([selected], [folder-active="true"]))) {
+  --zen-folder-indent: 14px !important;
+}
+
+/* Zen leaves the other tabs in that inner folder at their full height (it
+   only shrinks the closed folder's own), see-through, so the inner folder's
+   box stretched far below the tab shown. They shrink away with the rest:
+   no height, so their minimum height, which can be animated, sets it. (Not
+   once that inner folder's name is clicked: it opens where it is, zia.uc.js.) */
+:root:not(#zia-none) zen-folder[collapsed]:is([has-active], [zia-was-active]) :is(zen-folder, tab-group:not([split-view-group])) .tabbrowser-tab:not([selected], [visuallyselected], [folder-active="true"], [zia-kept-tab], [atg-folder-active], tab-group[split-view-group]:has(.tabbrowser-tab:is([selected], [visuallyselected], [folder-active="true"])) .tabbrowser-tab, :is([zia-open-in-closed], [zia-closing-in-closed]) .tabbrowser-tab) {
+  height: 0 !important;
+  min-height: 0 !important;
+  margin-block: 0 !important;
+  overflow: clip !important;
+  transition:
+    min-height 0.18s ease-in-out,
+    margin-block 0.18s ease-in-out,
+    opacity 0.18s ease-in-out !important;
+}
+
+/* ...and a folder in it that Zen hides goes entirely: its box and outline
+   stayed as a thin line that could still be hovered, and, open, its room at
+   the bottom left a gap under the tab shown */
+:root:not(#zia-none) zen-folder[collapsed]:is([has-active], [zia-was-active]) :is(zen-folder, tab-group:not([split-view-group])):not(:has(.tabbrowser-tab:is([selected], [folder-active="true"])), [zia-keeps-name], :is([zia-open-in-closed], [zia-closing-in-closed]) *) {
+  pointer-events: none;
+  padding-bottom: 0 !important;
+  transition: padding-bottom 0.18s ease-in-out !important;
+
+  &::before,
+  &::after {
+    opacity: 0 !important;
+  }
+}
+
+/* Letting go of that tab (zia.uc.js), the folder keeps its layout a
+   moment while it fades, the inner folder's name with it */
+zen-folder[collapsed][zia-was-active] > .tab-group-container > .zen-tab-group-start {
+  margin-top: 0 !important;
+}
+
+:root:not(#zia-none):not(#zia-none-2) zen-folder[collapsed][zia-was-active] :is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container {
+  opacity: 0 !important;
+  transition: opacity 0.15s ease-in !important;
+}
+
+/* ...and the folders it hides go entirely: Zen shrinks their contents to
+   nothing, but their colour and outline stayed, squashed into a thin
+   bright line above the kept folder */
+zen-workspace[collapsedpinnedtabs] :is(zen-folder, tab-group:not([split-view-group])):not(:has(.tabbrowser-tab[selected]))::before,
+zen-workspace[collapsedpinnedtabs] :is(zen-folder, tab-group:not([split-view-group])):not(:has(.tabbrowser-tab[selected]))::after {
+  opacity: 0 !important;
+}
+
+/* A folder whose tab was just dragged out, held while it eases shut: its
+   box keeps its bottom where it was (zia.uc.js) */
+:root[zen-sidebar-expanded="true"] zen-folder[zia-holding]::before,
+:root[zen-sidebar-expanded="true"] zen-folder[zia-holding]::after {
+  bottom: var(--zia-hold-inset) !important;
+}
+
+/* Zen's donate button goes from the note it shows in the sidebar after an
+   update */
+.zen-sidebar-notification-link-container[data-l10n-id="zen-sidebar-notification-donate-tooltip"] {
+  display: none !important;
+}
+
+@keyframes zia-slot-shine {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* the address in the toolbar's ink (with Zia's address bar; Zen's keeps
+   its own, softer) */
+#urlbar:not([breakout-extend]) .urlbar-input {
+    color: rgb(255, 255, 255) !important;
+  }
+:root[zia-site-dark="true"] #urlbar:not([breakout-extend]) .urlbar-input {
+    color: var(--zia-dark-ink, rgb(251, 251, 254)) !important;
+  }
+:root[zia-site-light="true"] #urlbar:not([breakout-extend]) .urlbar-input {
+    color: var(--zia-light-ink) !important;
+  }
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container > label,
+:is(zen-folder, tab-group:not([split-view-group]))[collapsed] > .tab-group-label-container > label {
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+}
+
+:root:not(#zia-none) :is(zen-folder[zia-folder-color], tab-group:not([split-view-group])) > .tab-group-label-container > label {
+  color: color-mix(in srgb, var(--zia-folder-swatch, white) var(--zia-folder-name-tint), white) !important;
+}
+
+:root:not(#zia-none) :is(zen-folder[zia-folder-color], tab-group:not([split-view-group])):hover > .tab-group-label-container > label {
+  color: color-mix(in srgb, var(--zia-folder-swatch, white) var(--zia-folder-name-tint-hover), white) !important;
+}
+
+#zen-workspaces-button {
+  gap: 0 !important;
+
+  /* a space with no icon is a dot in a narrow button, so a row of dots
+     sits close together; beside a space with an icon it keeps a little
+     room from it (it sat squashed against the icon) */
+  & toolbarbutton:has(> .zen-workspace-icon[no-icon="true"]) {
+    min-width: 0 !important;
+    width: 12px !important;
+    max-width: 12px !important;
+    height: 20px !important;
+    filter: none !important;
+    opacity: 1 !important;
+    background: transparent !important;
+
+    & > .zen-workspace-icon[no-icon="true"] {
+      width: 6px !important;
+      height: 6px !important;
+      background: rgba(255, 255, 255, 0.28) !important;
+    }
+
+    &[active="true"] > .zen-workspace-icon[no-icon="true"] {
+      background: rgba(255, 255, 255, 0.92) !important;
+    }
+
+    &:hover:not([active="true"]) > .zen-workspace-icon[no-icon="true"] {
+      background: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  & toolbarbutton:not(:has(> .zen-workspace-icon[no-icon="true"])) + toolbarbutton:has(> .zen-workspace-icon[no-icon="true"]) {
+    margin-inline-start: 6px !important;
+  }
+
+  & toolbarbutton:has(> .zen-workspace-icon[no-icon="true"]) + toolbarbutton:not(:has(> .zen-workspace-icon[no-icon="true"])) {
+    margin-inline-start: 6px !important;
+  }
+}
+
+.pinned-tabs-container-separator toolbarseparator {
+  background: rgba(255, 255, 255, 0.13) !important;
+}
+
+.tabbrowser-tab:not([zen-essential], [visuallyselected]):hover > .tab-stack > .tab-background {
+  background: var(--zia-tab-hover-bg) !important;
+}
+
+:root[zen-sidebar-expanded="true"] #tabbrowser-tabs {
+  overflow-clip-margin: 16px !important;
+}
+
+:root[zen-sidebar-expanded="true"]:is([swipe-gesture="true"], [animating-background="true"]) #tabbrowser-tabs,
+/* (Zen 1.23 marks the sidebar and the tab list itself, not the window) */
+:root[zen-sidebar-expanded="true"] #navigator-toolbox[animating-background] #tabbrowser-tabs,
+:root[zen-sidebar-expanded="true"] #tabbrowser-tabs:has(#tabbrowser-arrowscrollbox[swipe-gesture]) {
+  overflow-clip-margin: var(--zen-toolbox-padding) !important;
+}
+
+/* The tab list draws a little past its edges for the selected tab's glow,
+   which let the space beside the one shown peek in at the sidebar's edge:
+   its coloured folders showed as thin coloured slivers down the side (seen
+   on Windows, where the spaces sit closer). A space Zen has put to one side
+   (not shown, at a whole step away) is hidden while it rests there; while
+   it slides in or follows a swipe it's somewhere in between, and shows.
+   Faded out whole rather than only hidden: a folder's name inside sets
+   itself visible again, which a hidden space can't stop, so the coloured
+   folders still showed. */
+zen-workspace:not([active]):is([style*="translateX(1"], [style*="translateX(2"], [style*="translateX(3"], [style*="translateX(4"], [style*="translateX(5"], [style*="translateX(6"], [style*="translateX(7"], [style*="translateX(8"], [style*="translateX(9"], [style*="translateX(-"])[style*="00%)"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Room at the end of the tab list for the last tab's glow, which the list
+   would otherwise cut off. The list's inner scroll box ends where the last
+   row does and doesn't take padding of its own, so the room goes at the end
+   of the tabs inside it, and scrolls with them. (It used to be padding on
+   the list itself too, which sat outside the scrolling: with a long list it
+   showed as an empty band above the media cards.) */
+.zen-workspace-normal-tabs-section {
+  padding-bottom: calc(var(--zia-active-glow-blur) + var(--zia-active-glow-spread) + var(--zia-active-glow-reach)) !important;
+}
+
+/* No scrollbars anywhere in the sidebar; it still scrolls */
+#navigator-toolbox,
+#navigator-toolbox *,
+#navigator-toolbox arrowscrollbox::part(scrollbox),
+zen-workspace,
+zen-workspace *,
+zen-workspace arrowscrollbox::part(scrollbox) {
+  scrollbar-width: none !important;
+}
+
+:is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container {
+  font-weight: var(--zia-folder-weight) !important;
+}
+
+:root[zen-sidebar-expanded="true"] .tabbrowser-tab:not([zen-essential]) > .tab-stack > :is(.tab-background, .tab-content) {
+  margin-inline-end: var(--zia-tab-right-fix, 0px) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) .tabbrowser-tab:not([zen-essential]) > .tab-stack > :is(.tab-background, .tab-content) {
+  margin-inline-end: calc(var(--zia-folder-right-fix, 0px) + var(--zia-folder-inner-gap, 5px)) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) :is(zen-folder, tab-group:not([split-view-group])) .tabbrowser-tab:not([zen-essential]) > .tab-stack > :is(.tab-background, .tab-content) {
+  margin-inline-end: calc(var(--zia-folder-right-fix, 0px) + 2 * var(--zia-folder-inner-gap, 5px)) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) :is(zen-folder, tab-group:not([split-view-group])) :is(zen-folder, tab-group:not([split-view-group])) .tabbrowser-tab:not([zen-essential]) > .tab-stack > :is(.tab-background, .tab-content) {
+  margin-inline-end: calc(var(--zia-folder-right-fix, 0px) + 3 * var(--zia-folder-inner-gap, 5px)) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container {
+  padding-inline-end: calc(var(--zia-folder-right-fix, 0px) + var(--zia-folder-inner-gap, 5px)) !important;
+}
+
+:root[zen-sidebar-expanded="true"] :is(zen-folder, tab-group:not([split-view-group])) :is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container {
+  padding-inline-end: calc(var(--zia-folder-right-fix, 0px) + 2 * var(--zia-folder-inner-gap, 5px)) !important;
+}
+
+/* As in Dia, a tab that isn't the one you're on is a little dimmer, hovered
+   or not, and goes white once selected */
+.tabbrowser-tab:not([zen-essential]) .tab-label-container {
+  color: rgba(255, 255, 255, 0.8) !important;
+  opacity: 1 !important;
+}
+
+.tabbrowser-tab:not([zen-essential])[visuallyselected] .tab-label-container {
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Renaming a tab or folder: the name in the box stays the size it is in the
+   list */
+#tab-label-input {
+  font-size: var(--zia-text-size) !important;
+}
+
+/* ...and empty, it says it's waiting for one (zia.uc.js), in the name's own ink, dimmed */
+#tab-label-input::placeholder {
+  color: currentColor !important;
+  opacity: 0.45 !important;
+}
+
+
+#zen-media-controls-toolbar {
+  --zia-media-ease: var(--zen-media-stack-easing, cubic-bezier(0.25, 1, 0.5, 1));
+
+  /* Zia's squircle, as its other cards (the card, its glow, the stack) */
+  border-radius: calc(var(--zia-media-radius) * var(--zia-squircle-grow)) !important;
+  corner-shape: var(--zia-squircle) !important;
+
+  .zen-media-card::before,
+  .zen-media-card::after {
+    border-radius: inherit !important;
+    corner-shape: var(--zia-squircle) !important;
+  }
+
+  .zen-media-card {
+    --zia-media-glow-a: rgb(90, 185, 245);
+    --zia-media-glow-b: rgb(123, 77, 255);
+    --zen-sidebar-notification-bg: rgb(0, 0, 0);
+
+    /* see-through, a shade of whatever's under it (the space's colour, its
+       grain), as the selected tab is */
+    background-color: var(--zia-media-bg) !important;
+    background-image: none !important;
+    isolation: isolate;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(170px 110px at 16px 6px, color-mix(in srgb, var(--zia-media-glow-a) 32%, transparent), transparent 72%),
+        radial-gradient(220px 120px at 60% -40px, color-mix(in srgb, var(--zia-media-glow-b) 16%, transparent), transparent 75%);
+      opacity: 0;
+      transition: opacity 0.3s var(--zia-media-ease);
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+    border-radius: calc(var(--zia-media-radius) * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+    outline: none !important;
+    box-shadow: var(--zia-media-edge, var(--zia-glass-edge)) !important;
+    padding: 9px 10px !important;
+
+    box-sizing: border-box !important;
+    height: var(--zia-media-card-height) !important;
+    transition:
+      transform var(--zia-spring-time) var(--zia-spring),
+      opacity 0.3s var(--zia-media-ease),
+      filter 0.3s var(--zia-media-ease),
+      height var(--zia-spring-time) var(--zia-spring),
+      background-color 0.3s var(--zia-media-ease) !important;
+
+    &[zen-reindexing] {
+      transition: none !important;
+    }
+
+    &[zia-glow-pending] {
+      --zia-media-glow-a: transparent;
+      --zia-media-glow-b: transparent;
+    }
+  }
+
+  .zen-media-main-vbox {
+    height: 100% !important;
+    align-content: center;
+    display: grid !important;
+
+    grid-template-columns: var(--zia-media-ring-size) minmax(0, 1fr) auto auto auto auto;
+    grid-template-rows: auto auto auto;
+    column-gap: 0;
+    row-gap: 0;
+    align-items: center;
+  }
+
+  .zen-media-main-vbox > vbox,
+  .zen-media-info-container,
+  .zen-media-buttons-hbox,
+  .zen-media-controls-hbox,
+  .zen-media-playback-buttons {
+    display: contents !important;
+  }
+
+  .zen-media-focus-button {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center !important;
+    position: relative;
+    width: var(--zia-media-ring-size) !important;
+    height: var(--zia-media-ring-size) !important;
+    min-width: var(--zia-media-ring-size) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background: transparent !important;
+
+    & > .toolbarbutton-icon,
+    & image {
+      width: var(--zia-media-art-size) !important;
+      height: var(--zia-media-art-size) !important;
+      min-width: var(--zia-media-art-size) !important;
+      min-height: var(--zia-media-art-size) !important;
+      padding: 0 !important;
+      border-radius: calc(7px * var(--zia-squircle-grow)) !important;
+      corner-shape: var(--zia-squircle) !important;
+      transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+
+    & > .zia-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    & .zia-ring-track {
+      stroke: rgba(255, 255, 255, 0.14);
+    }
+
+    & .zia-ring-fill {
+      transition: stroke-dasharray 0.9s linear, opacity 0.2s ease;
+    }
+
+    &:not([zia-art])[zia-favicon] > .toolbarbutton-icon,
+    &:not([zia-art])[zia-favicon] image {
+      list-style-image: none !important;
+      background:
+        var(--zia-media-favicon, none) center / 50% no-repeat,
+        var(--zia-favicon-tint, rgb(44, 44, 46)) !important;
+      transition: background-color 0.3s ease, opacity 0.2s ease, filter 0.2s ease;
+    }
+
+    &:not([zia-art])[zia-initial]::before {
+      content: attr(zia-initial);
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 16px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    &[zia-art] > .toolbarbutton-icon,
+    &[zia-art] image {
+      list-style-image: none !important;
+      background: var(--zia-media-art) center / cover no-repeat !important;
+    }
+
+    &::after {
+      display: none !important;
+    }
+  }
+
+  /* on Windows the picture came through square: clipped, as near the squircle as a clip goes */
+  @media (-moz-platform: windows) {
+    .zen-media-focus-button :is(.toolbarbutton-icon, image) {
+      clip-path: inset(0 round calc(7px * var(--zia-squircle-grow) * 0.8));
+    }
+  }
+
+  .zen-media-card:is([media-position-hidden], [zia-live]) .zia-ring-fill {
+    opacity: 0;
+  }
+
+  .zen-media-card:not(.playing) .zen-media-focus-button :is(image, .toolbarbutton-icon) {
+    opacity: 0.75;
+    filter: saturate(0.75);
+  }
+
+  .zen-media-info-vbox {
+    grid-column: 2 / 6;
+    grid-row: 1;
+    min-width: 0;
+    padding-inline: 8px 4px;
+    justify-content: center;
+    gap: 2px;
+
+    &::before {
+      display: none !important;
+    }
+
+    & label {
+      min-height: 0 !important;
+      height: auto !important;
+      line-height: 1.25;
+    }
+  }
+
+  .zen-media-title {
+    color: rgb(255, 255, 255) !important;
+    font-weight: var(--zia-folder-weight) !important;
+    font-size: 1.08em !important;
+  }
+
+  .zen-media-artist {
+    color: rgba(255, 255, 255, 0.65) !important;
+    opacity: 1 !important;
+    font-weight: var(--zia-tab-weight) !important;
+    font-size: 0.95em !important;
+  }
+
+  .zen-media-playpause-button { grid-column: 6; grid-row: 1; }
+
+  .zen-media-progress-hbox {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0;
+
+    height: 0 !important;
+    max-height: none !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    padding: 0 2px !important;
+    margin: 0 !important;
+    pointer-events: none !important;
+    transition:
+      height var(--zia-spring-time) var(--zia-spring),
+      margin var(--zia-spring-time) var(--zia-spring),
+      opacity 0.25s var(--zia-media-ease) !important;
+  }
+
+  .zen-media-card[media-sharing] .zen-media-progress-hbox {
+    display: none !important;
+  }
+
+  .zen-media-card:is([media-position-hidden], [zia-live]):not([media-sharing]) .zen-media-progress-hbox {
+    & > * {
+      display: none !important;
+    }
+
+    &::before {
+      content: "LIVE";
+      flex: 1;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+
+      background:
+        linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.2) calc(50% - 34px),
+          transparent calc(50% - 18px),
+          transparent calc(50% + 18px),
+          rgba(255, 255, 255, 0.2) calc(50% + 34px)
+        ) center / 100% 4px no-repeat;
+    }
+  }
+
+  .zen-media-current-time,
+  .zen-media-duration {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.65) !important;
+    font-size: 10px !important;
+    margin: 0 !important;
+    transition:
+      max-width 0.3s var(--zia-media-ease),
+      opacity 0.3s var(--zia-media-ease),
+      margin 0.3s var(--zia-media-ease) !important;
+  }
+
+  .zen-media-progress-bar {
+    --progress-height: 2px;
+    flex: 1;
+    height: var(--progress-height) !important;
+    margin: 0 !important;
+    background-color: transparent !important;
+    transition: height 0.3s var(--zia-media-ease) !important;
+
+    &::-moz-range-track {
+      background: rgba(255, 255, 255, 0.2) !important;
+      height: var(--progress-height) !important;
+    }
+
+    &::-moz-range-progress {
+      background: rgb(255, 255, 255) !important;
+      box-shadow: none !important;
+      height: var(--progress-height) !important;
+    }
+
+    &::-moz-range-thumb {
+      background: rgb(255, 255, 255) !important;
+      width: 10px !important;
+      height: 10px !important;
+      transform: scale(0) !important;
+      transition: transform 0.2s var(--zia-media-ease) !important;
+    }
+  }
+
+  .zen-media-mute-button { grid-column: 1; grid-row: 3; justify-self: start !important; }
+  .zen-media-previoustrack-button { grid-column: 3; grid-row: 3; }
+  .zen-media-nexttrack-button { grid-column: 4; grid-row: 3; }
+  /* Zen hides it unless the page has exactly one video; it picks the main video anyway */
+  .zen-media-pip-button { grid-column: 5; grid-row: 3; display: flex !important; }
+  .zen-media-close-button { grid-column: 6; grid-row: 3; }
+
+  :is(.zen-media-mute-button, .zen-media-previoustrack-button, .zen-media-nexttrack-button, .zen-media-pip-button, .zen-media-close-button) {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    translate: 0 6px;
+    margin-top: 0 !important;
+    pointer-events: none;
+    transition:
+      max-height var(--zia-spring-time) var(--zia-spring),
+      opacity 0.3s var(--zia-media-ease),
+      translate var(--zia-spring-time) var(--zia-spring),
+      margin var(--zia-spring-time) var(--zia-spring) !important;
+  }
+
+  .zen-media-card:not([muted]) .zen-media-mute-button {
+    list-style-image: var(--zia-sound-still, url("chrome://sine/content/zia-flat/icons/sound-still.svg")) !important;
+  }
+
+  .zen-media-card.playing:not([muted]) .zen-media-mute-button {
+    list-style-image: var(--zia-sound-wave, url("chrome://sine/content/zia-flat/icons/sound-wave.svg")) !important;
+  }
+
+  .zen-media-card[muted] .zen-media-mute-button {
+    list-style-image: var(--zia-sound-muted, url("chrome://sine/content/zia-flat/icons/sound-muted.svg")) !important;
+  }
+
+  .zen-media-mute-button > .toolbarbutton-icon {
+    -moz-context-properties: fill;
+    fill: currentColor !important;
+  }
+
+  .media-device-buttons {
+    grid-column: 3 / -1;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  /* with more than one card, the whole stack opens without the spring, height too */
+  &:hover:has(.zen-media-card ~ .zen-media-card) .zen-media-card:not([zen-reindexing]) {
+    transition:
+      transform 0.35s var(--zia-media-ease),
+      opacity 0.3s var(--zia-media-ease),
+      filter 0.3s var(--zia-media-ease),
+      height 0.3s var(--zia-media-ease),
+      background-color 0.3s var(--zia-media-ease) !important;
+  }
+
+  &:hover {
+    .zen-media-card {
+      height: var(--zia-media-card-height-open) !important;
+      /* the stack fans open without the spring, which bounced the top card; it
+         keeps the spring closing, and the card still springs as it grows */
+      transition:
+        transform 0.35s var(--zia-media-ease),
+        opacity 0.3s var(--zia-media-ease),
+        filter 0.3s var(--zia-media-ease),
+        height var(--zia-spring-time) var(--zia-spring),
+        background-color 0.3s var(--zia-media-ease) !important;
+
+      &[zen-reindexing] {
+        transition: none !important;
+      }
+
+      /* solid while open, as it then floats over the tabs (Zen keeps the
+         toolbar its closed height): the same shade, over the sidebar's colour */
+      background-color: var(--zia-media-solid, var(--zia-media-card-base)) !important;
+    }
+
+    .zen-media-progress-hbox {
+      height: 16px !important;
+      margin: 8px 0 0 !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .zen-media-current-time,
+    .zen-media-duration {
+      max-width: 64px;
+      opacity: 1;
+    }
+
+    .zen-media-current-time {
+      margin-inline-end: 7px !important;
+    }
+
+    .zen-media-duration {
+      margin-inline-start: 7px !important;
+    }
+
+    .zen-media-progress-bar {
+      --progress-height: 4px;
+
+      &::-moz-range-thumb {
+        transform: scale(1) !important;
+      }
+    }
+
+    :is(.zen-media-mute-button, .zen-media-previoustrack-button, .zen-media-nexttrack-button, .zen-media-pip-button, .zen-media-close-button) {
+      max-height: 30px !important;
+      opacity: 1 !important;
+      translate: 0 0;
+      margin-top: 6px !important;
+      pointer-events: auto;
+    }
+  }
+
+  .toolbarbutton-1 {
+    margin-block: 0 !important;
+    margin-inline: 0 !important;
+    padding: 0 !important;
+    justify-self: center;
+    border-radius: calc(8px * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    fill: currentColor !important;
+    scale: 1 !important;
+
+    & > .toolbarbutton-icon {
+      width: 28px !important;
+      height: 28px !important;
+      padding: 6px !important;
+      border-radius: calc(8px * var(--zia-squircle-grow)) !important;
+      corner-shape: var(--zia-squircle) !important;
+      background-color: transparent !important;
+    }
+
+    &:hover > .toolbarbutton-icon {
+      background-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    &:active {
+      scale: 1 !important;
+    }
+  }
+
+  /* the buttons in Zia's icons (Tabler, as the rest of Zia) */
+  .zen-media-playpause-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/media-play.svg") !important;
+  }
+
+  .zen-media-card.playing .zen-media-playpause-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/media-pause.svg") !important;
+  }
+
+  .zen-media-previoustrack-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/media-prev.svg") !important;
+  }
+
+  .zen-media-nexttrack-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/media-next.svg") !important;
+  }
+
+  .zen-media-pip-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/media-pip.svg") !important;
+  }
+
+  .zen-media-close-button {
+    list-style-image: url("chrome://sine/content/zia-flat/icons/ui/x.svg") !important;
+  }
+
+  :is(.zen-media-playpause-button, .zen-media-previoustrack-button, .zen-media-nexttrack-button, .zen-media-pip-button, .zen-media-close-button) > .toolbarbutton-icon {
+    -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+    fill: currentColor !important;
+    fill-opacity: 1 !important;
+  }
+
+  .zen-media-playpause-button > .toolbarbutton-icon {
+    color: rgba(255, 255, 255, 0.92) !important;
+    fill: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  .zen-media-card[media-sharing] .media-device-buttons {
+    display: flex !important;
+  }
+}
+
+#zen-media-controls-toolbar:not(:hover) {
+  & .zen-media-mute-button {
+    grid-column: 6;
+    grid-row: 1;
+    justify-self: center !important;
+    max-height: 30px !important;
+    opacity: 1 !important;
+    translate: 0 0 !important;
+    margin-top: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  & .zen-media-playpause-button {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+#zen-media-controls-toolbar .zen-media-playpause-button {
+  transition: opacity 0.2s var(--zia-media-ease) !important;
+}
+
+/* not while the front card fades away: the one behind showed almost empty until it took its place */
+#zen-media-controls-toolbar:not(:hover):has(.zen-media-card[stacked-behind]):not(:has(.zen-media-card:not([stacked-behind]):is([zen-hiding], [zen-removing]))) .zen-media-card[stacked-behind] {
+  mask: linear-gradient(
+    #000 0 calc(var(--zen-media-stack-peek, 8px) * var(--zen-media-card-peek-level, 1) / (1 - 0.04 * var(--zen-media-card-peek-level, 1))),
+    transparent 0
+  );
+
+  & .zen-media-main-vbox {
+    opacity: 0 !important;
+  }
+}
+
+#downloads-button,
+#downloads-indicator-anchor {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/downloads.svg") !important;
+}
+
+#downloads-button[hidden],
+#downloads-button[hidden="true"] {
+  display: none !important;
+}
+
+#downloads-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: var(--zia-space-pill-height) !important;
+  min-height: var(--zia-space-pill-height) !important;
+  border-radius: calc(10px * var(--zia-squircle-grow)) !important;
+  corner-shape: var(--zia-squircle) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  position: relative;
+  /* a square everywhere: as wide as it's tall (the space name's height) */
+  width: var(--zia-space-pill-height) !important;
+  min-width: var(--zia-space-pill-height) !important;
+  max-width: var(--zia-space-pill-height) !important;
+  padding-inline: 0 !important;
+
+  /* level with the toolbar's own icons beside it */
+  translate: 0 1px;
+
+  &:hover {
+    background-color: var(--zia-space-pill-bg) !important;
+  }
+
+  & #zia-download-ring {
+    position: absolute;
+    inset: 3px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &[zia-downloading] #zia-download-ring {
+    opacity: 1;
+  }
+
+  & .zia-download-ring-track {
+    stroke: rgba(255, 255, 255, 0.12);
+  }
+
+  & .zia-download-ring-arc {
+    stroke: var(--zia-loading-color);
+    transition: stroke-dashoffset 0.25s ease;
+  }
+
+  & * {
+    background: none !important;
+    background-color: transparent !important;
+  }
+
+  & > .toolbarbutton-icon {
+    width: 17px !important;
+    height: 17px !important;
+    padding: 0 !important;
+    margin: auto !important;
+  }
+}
+
+/* Windows gives toolbar buttons more padding, which stretched the hover
+   square into an uneven tall shape; it's held to an even square there. */
+@media (-moz-platform: windows) {
+  #downloads-button {
+    padding: 0 !important;
+
+    & > :is(.toolbarbutton-badge-stack, #downloads-indicator-anchor, .toolbarbutton-icon) {
+      padding: 0 !important;
+      margin: auto !important;
+    }
+  }
+}
+
+/* The icon in the vertical middle of its hover square: drawn a pixel high
+   of it otherwise, more room below it than above */
+#downloads-button > :is(.toolbarbutton-badge-stack, #downloads-indicator-anchor, .toolbarbutton-icon) {
+  translate: 0 1px;
+}
+
+#downloads-indicator-icon {
+  width: 17px !important;
+  height: 17px !important;
+  max-height: 17px !important;
+  visibility: visible !important;
+  translate: 0 -1px;
+}
+
+#downloads-indicator-start-box,
+#downloads-indicator-finish-box,
+#downloads-indicator-progress-outer {
+  display: none !important;
+}
+
+#downloads-button[animate][notification="start"] #downloads-indicator-icon {
+  animation: zia-download-start 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+#downloads-button[animate][notification="finish"] #downloads-indicator-icon {
+  animation: zia-download-finish 2.1s ease-in-out;
+}
+
+@keyframes zia-download-start {
+  0% { transform: translateY(0); }
+  35% { transform: translateY(2px) scale(0.92); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes zia-download-finish {
+  0% { list-style-image: url("chrome://sine/content/zia-flat/icons/downloads.svg"); transform: scale(1); opacity: 1; }
+  14% { list-style-image: url("chrome://sine/content/zia-flat/icons/downloads.svg"); transform: scale(0.55); opacity: 0; }
+  15% { list-style-image: url("chrome://sine/content/zia-flat/icons/download-done.svg"); transform: scale(0.55); opacity: 0; }
+  30% { list-style-image: url("chrome://sine/content/zia-flat/icons/download-done.svg"); transform: scale(1); opacity: 1; }
+  70% { list-style-image: url("chrome://sine/content/zia-flat/icons/download-done.svg"); transform: scale(1); opacity: 1; }
+  84% { list-style-image: url("chrome://sine/content/zia-flat/icons/download-done.svg"); transform: scale(0.55); opacity: 0; }
+  85% { list-style-image: url("chrome://sine/content/zia-flat/icons/downloads.svg"); transform: scale(0.55); opacity: 0; }
+  100% { list-style-image: url("chrome://sine/content/zia-flat/icons/downloads.svg"); transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #downloads-button[animate] #downloads-indicator-icon {
+    animation: none !important;
+  }
+}
+
+:is(#history-panelmenu, #zen-history-button) {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/history.svg") !important;
+}
+
+#alltabs-button {
+  list-style-image: url("chrome://sine/content/zia-flat/icons/chevron-down.svg") !important;
+}
+
+/* The buttons along the sidebar's foot (the library, the tab list) at
+   the toolbar's 16px, set here so a Zen update can't grow them (1.23 drew
+   the library's as a sprite of its own, and they came out bigger) */
+#zen-sidebar-foot-buttons {
+  --zen-toolbar-button-size: 16px !important;
+
+  & #zen-library-button {
+    --zen-library-sprite-size: 16px !important;
+  }
+}
+
+/* The extensions that don't fit in the sidebar's address bar (Zen's single toolbar), on
+   a row of their own under it: the toolbar's icon buttons, as at the top of the page,
+   not Zen's filled tiles (which read as more essentials) */
+:root[zen-single-toolbar="true"] #zen-overflow-extensions-list:not(:empty) {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 0 0 !important;
+
+  & .unified-extensions-item {
+    flex: none !important;
+  }
+
+  & .unified-extensions-item-action-button {
+    width: 28px !important;
+    height: 28px !important;
+    background-color: transparent !important;
+    border-radius: calc(7px * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle-soft) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+    }
+  }
+
+  & :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+#zen-sidebar-foot-buttons toolbarbutton:not(#downloads-button) > .toolbarbutton-icon {
+  opacity: 0.4;
+  transition: none !important;
+}
+
+#zen-sidebar-foot-buttons toolbarbutton:not(#downloads-button):hover > .toolbarbutton-icon {
+  opacity: 0.7;
+}
+
+/* No tile behind the sidebar's bottom buttons (the Library, the spaces'
+   dots, the tab list's arrow), hovered, pressed or open: only their icons
+   brighten, as above */
+:root:not(#zia-none) #zen-sidebar-foot-buttons :is(toolbarbutton, toolbarbutton > .toolbarbutton-icon, toolbarbutton > .toolbarbutton-badge-stack) {
+  background-color: transparent !important;
+}
+
+#alltabs-button .toolbarbutton-icon {
+  opacity: 0.4 !important;
+}
+
+#alltabs-button:hover .toolbarbutton-icon {
+  opacity: 0.7 !important;
+}
+
+/* With Zia's address bar: its icons at Zia's sizes, and a keyword
+   search's pill (type a keyword, or pick an engine, and the bar says
+   which: Google, Bookmarks, Tabs) in Zia's look, a squircle chip tinted from the bar's own ink, so it reads
+   on the dark pop-up, a light one or one in the site's colour, the
+   engine's name at the tabs' text size and Zia's x to leave it (#347).
+   It was hidden altogether. With Zen's address bar it's Zen's. */
+#urlbar :is(#page-action-buttons, .urlbar-page-action) image,
+  #urlbar .urlbar-icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+#urlbar #zen-site-data-icon-button image {
+    width: 15px !important;
+    height: 14px !important;
+  }
+#urlbar #urlbar-search-mode-indicator {
+    align-self: center !important;
+    align-items: center !important;
+    gap: 2px !important;
+    height: 22px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 3px 0 8px !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: calc(6px * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+    background-color: color-mix(in srgb, currentColor 12%, transparent) !important;
+    color: inherit !important;
+  }
+/* The text after it starts Zia's gap between icon and text away, the
+     same gap the pill has before it, after the search icon: the room is
+     the text's own (Firefox's was three times that; a margin on the pill
+     didn't make any) */
+#urlbar[searchmode] .urlbar-input-box {
+    margin-inline-start: 0 !important;
+    padding-inline-start: 0 !important;
+  }
+#urlbar[searchmode] .urlbar-input {
+    margin-inline-start: 0 !important;
+    padding-inline-start: var(--zia-pop-text-gap, 10px) !important;
+  }
+#urlbar #urlbar-search-mode-indicator-title {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: var(--zia-text-size) !important;
+    font-weight: 500 !important;
+  }
+#urlbar #urlbar-search-mode-indicator-close {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: calc(4px * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+    background: url("chrome://sine/content/zia-flat/icons/ui/x.svg") center / 10px no-repeat !important;
+    -moz-context-properties: fill, fill-opacity !important;
+    fill: currentColor !important;
+    fill-opacity: 0.6 !important;
+    transition: background-color 0.12s ease, fill-opacity 0.12s ease !important;
+
+    &:hover {
+      background-color: color-mix(in srgb, currentColor 12%, transparent) !important;
+      fill-opacity: 1 !important;
+    }
+  }
+
+/* A tab's own tip and Firefox's preview give way to Zia's hover cards
+   (only while they're on). Every other tip, a page's own (a link's or a
+   picture's title) among them, shows as ever: they were all hidden, and
+   with them what a page tells you on hovering or focusing something. */
+
+/* The status bar, where a link goes as you hover it: hidden, unless "Show
+   where links go" is on (an option), then a small pill of Zia's glass at
+   the foot of the page */
+#statuspanel {
+    display: none !important;
+  }
+
+/* A download flying to the Library button as a row, as in Dia (zia.uc.js):
+   the window dimmed, a faint glow trailing the row and a soft bloom where
+   it lands, and the row itself, a small glass row with the
+   file's icon and name, as AI renaming's card is drawn */
+#zia-download-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  overflow: hidden;
+
+  & > .zia-df-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.34);
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  /* (the glow trailing the row: its size, very faint and soft) */
+  & > .zia-df-beam {
+    position: absolute;
+    width: 200px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.07), transparent);
+    filter: blur(12px);
+    mix-blend-mode: screen;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  & > .zia-df-bloom {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    margin: -80px 0 0 -80px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 50%, transparent);
+    mix-blend-mode: screen;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  & > .zia-df-row {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 240px;
+    height: 32px;
+    padding: 0 12px 0 9px;
+    border-radius: calc(11px * var(--zia-squircle-grow));
+    corner-shape: var(--zia-squircle) !important;
+    background: var(--zia-media-solid, var(--zia-media-card-base));
+    box-shadow: var(--zia-glass-edge), 0 8px 24px rgba(0, 0, 0, 0.32);
+    color: var(--zia-sidebar-ink, rgb(255, 255, 255));
+    font: 500 12.5px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  & .zia-df-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* (room under the line, or the name's clip cut off the tails of its
+     g, p and y) */
+  & .zia-df-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+    padding-block: 1px;
+  }
+}
+
+/* light: a lighter grey over the window, as in Dia, and a white row with
+   dark ink */
+:root[zia-light] #zia-download-flight {
+  & > .zia-df-dim {
+    background: rgba(40, 40, 50, 0.16);
+  }
+
+  & > .zia-df-beam {
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.22), transparent);
+  }
+
+  & > .zia-df-bloom {
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.1) 50%, transparent);
+  }
+
+  & > .zia-df-row {
+    background: rgb(252, 252, 253);
+    color: rgb(28, 28, 32);
+    box-shadow: var(--zia-glass-edge), 0 8px 24px rgba(0, 0, 0, 0.16);
+  }
+}
+
+/* Zia Settings in the ⋯ menu (zia.uc.js), with an icon as its neighbours have: Zen's
+   sliders, so it isn't taken for Firefox's own Settings above it */
+#zia-settings-menu-button {
+  list-style-image: url("chrome://browser/skin/zen-icons/sliders.svg") !important;
+}
+
+:root[zen-compact-mode="true"] .zen-toolbar-background::after {
+  box-shadow: var(--zia-glass-edge) !important;
+}
+
+:root[zen-compact-mode="true"] #zen-appcontent-wrapper {
+  position: relative !important;
+  z-index: 0 !important;
+}
+
+:root[zen-compact-mode="true"] #navigator-toolbox:not([animate="true"]) {
+  z-index: 100 !important;
+}
+
+:root[zen-compact-mode="true"] #titlebar > #zen-sidebar-top-buttons {
+  margin-block-start: calc(var(--zia-top-row-space) - 8px) !important;
+}
+
+/* While Zen slides the sidebar in or out on switching compact mode, the
+   top row keeps the spacing it has outside compact mode: with compact's,
+   the row and everything under it rode 5.5px high through the slide and
+   dropped into place as it ended. */
+:root[zen-compact-mode="true"][zen-compact-animating] #navigator-toolbox[animate="true"] #titlebar > #zen-sidebar-top-buttons {
+  margin-block-start: calc(var(--zia-top-row-space) - 2.5px) !important;
+}
+
+/* The flyout sidebar floats with half Zia's card gap all round (as Dia's) (top, side and
+   bottom), whatever Zen's element gap is: Zen's own put it almost flush
+   with the window's edges. (At least the usual gap with the page edge to edge:
+   flush in the window's corner, the window's own rounder corner cut into the
+   sidebar's there, so its corners didn't match.) Its panel sits inside a padding of Zen's float,
+   so the side offset takes that back off. The same with Zen's single toolbar,
+   which it had been left out of: flush there, the window's own rounded corner
+   cut into the sidebar's beside it. (Zen's extra top offset there, for
+   Windows' border along the window's top, is kept.) */
+:root[zen-compact-mode="true"] #navigator-toolbox:not([animate="true"]) {
+  margin-top: 0 !important;
+  top: calc(max(var(--zia-card-gap), 6px) / 2) !important;
+  bottom: calc(max(var(--zia-card-gap), 6px) / 2) !important;
+  height: auto !important;
+}
+
+:root[zen-compact-mode="true"][zen-single-toolbar="true"] #navigator-toolbox:not([animate="true"]) {
+  top: calc(max(var(--zia-card-gap), 6px) / 2 + var(--zen-sidebar-compact-top-offset, 0px)) !important;
+}
+
+:root[zen-compact-mode="true"]:not([zen-right-side="true"]) #navigator-toolbox:not([animate="true"]) {
+  left: calc(max(var(--zia-card-gap), 6px) / 2 - var(--zen-compact-float, 6px)) !important;
+}
+
+:root[zen-compact-mode="true"][zen-right-side="true"] #navigator-toolbox:not([animate="true"]) {
+  right: calc(max(var(--zia-card-gap), 6px) / 2 - var(--zen-compact-float, 6px)) !important;
+}
+
+/* With Zen's hidden toolbar, Zen pushes the flyout sidebar's panel down by the
+   element gap; Zia already places it with even gaps, so its top gap came out
+   wider than its bottom one. (Not on Windows, where the window buttons sit up there.) */
+@media -moz-pref("zen.view.compact.hide-toolbar") and (not (-moz-platform: windows)) {
+  :root[zen-compact-mode="true"]:not([zen-single-toolbar="true"]) #navigator-toolbox:not([animate="true"]) #titlebar {
+    margin-top: 0 !important;
+  }
+}
+
+/* Optionally, the top toolbar hides altogether while the sidebar is out
+   (otherwise it stays, cut away under the sidebar: zia.uc.js). On Windows
+   the window buttons in it stay. */
+
+/* Zen's hidden toolbar (compact mode, "hide the toolbar") opens in the window's gap
+   above the page, as Zen has it: clear, on the space's own colour, and the page under
+   it the rounded card. It had been drawn inside the card, in the site's colour with a
+   line under it, so it came in as another bar below the gap. Hidden, it's the gap
+   itself, as tall as the sides'; it grows on Zen's timing, and the site stays where it
+   is (Zen pulls it up by as much as the toolbar takes), as the card's top comes down. */
+@media -moz-pref("zen.view.compact.hide-toolbar") {
+    /* (not in a split, where each pane has its own toolbar and this one is hidden) */
+    :root[zen-compact-mode="true"]:not([zen-single-toolbar="true"], [inDOMFullscreen="true"], [zia-urlbar-position="bottom"], [zia-split="true"]):not(#zia-none) {
+      & #zen-appcontent-wrapper {
+        margin-top: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        /* (Zia's toolbar height, not Zen's: Zen's left it a few pixels taller or shorter
+           than the toolbar in it) */
+        --zen-toolbar-height-with-bookmarks: var(--zia-toolbar-height);
+      }
+
+      &[zen-has-bookmarks] #zen-appcontent-wrapper {
+        --zen-toolbar-height-with-bookmarks: calc(var(--zia-toolbar-height) + 30px);
+      }
+
+      & #zen-appcontent-navbar-wrapper {
+        --zia-gap-ink: rgb(251, 251, 254);
+        background: transparent !important;
+        border-bottom: none !important;
+        border-radius: 0 !important;
+        transition: height var(--zen-hidden-toolbar-transition) !important;
+        color-scheme: dark !important;
+        color: var(--zia-gap-ink) !important;
+        --toolbox-textcolor: var(--zia-gap-ink) !important;
+        --toolbar-color: var(--zia-gap-ink) !important;
+        --toolbar-field-color: var(--zia-gap-ink) !important;
+        --toolbarbutton-icon-fill: var(--zia-gap-ink) !important;
+        --zia-toolbar-ink: var(--zia-gap-ink);
+        --zia-urlbar-hover-bg: rgba(255, 255, 255, 0.09);
+        --zen-toolbar-element-bg: rgba(255, 255, 255, 0.06) !important;
+        --zen-toolbar-element-bg-hover: rgba(255, 255, 255, 0.1) !important;
+
+        /* (the window's own colour shows through: Zen's copy of it, laid over the toolbar,
+           came with an edge and a shadow) */
+        & .zen-toolbar-background {
+          display: none !important;
+        }
+
+        & toolbarbutton:not(.webextension-browser-action, [id$="-browser-action"], [id$="-BAP"]) {
+          color: var(--zia-gap-ink) !important;
+          fill: var(--zia-gap-ink) !important;
+          fill-opacity: 1 !important;
+        }
+
+        & :is(#zia-url-title, #zia-url-plain) .zia-url-title-rest {
+          opacity: 0.55;
+        }
+
+        @media (min-width: 0px) {
+          & #urlbar:not([breakout-extend]) .urlbar-input {
+            color: var(--zia-gap-ink) !important;
+          }
+        }
+
+        &:not([zen-has-hover], [has-popup-menu], [zen-compact-mode-active]) {
+          height: var(--zia-card-top-gap) !important;
+        }
+      }
+
+      &[zia-light] #zen-appcontent-navbar-wrapper {
+        --zia-gap-ink: var(--zia-sidebar-ink);
+        --zia-urlbar-hover-bg: rgba(0, 0, 0, 0.06);
+        --zen-toolbar-element-bg: rgba(0, 0, 0, 0.06) !important;
+        --zen-toolbar-element-bg-hover: rgba(0, 0, 0, 0.1) !important;
+        color-scheme: light !important;
+      }
+
+      & #tabbrowser-tabbox {
+        border-radius: var(--zia-card-radius) !important;
+        box-shadow: var(--zia-card-shadow) !important;
+      }
+
+      & #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+        border-radius: var(--zia-card-radius) !important;
+      }
+
+      & #tabbrowser-tabpanels :is(.browserSidebarContainer, .browserStack, browser) {
+        clip-path: inset(0 round var(--zia-card-radius));
+      }
+
+      /* (Zen's pull up, from the toolbar's height shown less the gap it had hidden: it
+         counts Zen's gap, wider than Zia's, so the site came down a step) */
+      @media not -moz-pref("zen.view.shift-down-site-on-hover") {
+        @media -moz-pref("zen.view.hide-window-controls") {
+          & #tabbrowser-tabpanels[has-toolbar-hovered] .browserSidebarContainer:is(.deck-selected, [zen-split="true"]) .browserContainer {
+            margin-top: calc(var(--zia-card-top-gap) - var(--zen-toolbar-height-with-bookmarks)) !important;
+          }
+        }
+      }
+    }
+}
+
+/* Optionally (zia.compact.toolbar-over-page), it shows over the top of the page
+   instead, rather than growing into the layout and pushing the page down (the page
+   moves under the pointer). Hidden, it's a clear strip where the pointer finds it,
+   and the page, with nothing above it, has all four corners round. */
+@media -moz-pref("zen.view.compact.hide-toolbar") {
+}
+
+/* Zen's floating address bar (a new tab, or typing) opens over the middle of the
+   window, so the hidden toolbar stays hidden: Zen brought it out too, an empty bar
+   above (the address bar it holds was off in the middle), and pulled the page up
+   under it as for the toolbar shown. (Still shown with the pointer up there.) */
+@media -moz-pref("zen.view.compact.hide-toolbar") {
+  :root[zen-compact-mode="true"]:not([zen-single-toolbar="true"], [inDOMFullscreen="true"], [zia-urlbar-position="bottom"], [zia-split="true"]):not(#zia-none):has(#urlbar[zen-floating-urlbar="true"]):not(:has(#zen-appcontent-navbar-wrapper:is([zen-has-hover], [has-popup-menu]))) {
+    & #zen-appcontent-navbar-wrapper {
+      height: var(--zia-card-top-gap) !important;
+      overflow: clip !important;
+    }
+
+    & #zen-appcontent-navbar-container {
+      visibility: hidden !important;
+    }
+
+    & #urlbar {
+      visibility: visible !important;
+    }
+
+    & #tabbrowser-tabpanels[has-toolbar-hovered] .browserContainer {
+      margin-top: 0 !important;
+    }
+  }
+}
+
+/* Zen's single toolbar, collapsed (Zen's "hide window controls"): shown, the bar
+   grew into the layout and pushed the page down, and shrank back, pulling it up,
+   each time the pointer reached the window's top (a jitter there and over the
+   window buttons). Collapsed, its sliver still sat above the page, so the gap
+   there was twice the sides'. It shows over the page instead, on the space's
+   colour (Zen's own layer for it, which it otherwise keeps for compact mode); the
+   page keeps its place, the same gap from the top as from the sides. */
+@media -moz-pref("zen.view.hide-window-controls") {
+  :root[zen-single-toolbar="true"]:not([customizing], [inDOMFullscreen="true"]):not(#zia-none) {
+    & #zen-appcontent-wrapper {
+      position: relative !important;
+    }
+
+    & #zen-appcontent-navbar-wrapper {
+      position: absolute !important;
+      top: 0;
+      inset-inline: 0;
+      z-index: 2;
+      /* (Zen's grow and fade as it shows and hides: Zia's toolbar colour fade took
+         their place, so it came and went at once) */
+      transition:
+        height var(--zen-hidden-toolbar-transition) 0.2s,
+        opacity var(--zen-hidden-toolbar-transition) 0.2s !important;
+      /* (its hover reaches up over the gap above the page to the window's edge,
+         as in compact mode) */
+      overflow-clip-margin: var(--zia-card-top-gap);
+      contain: none !important;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-inline: 0;
+        bottom: 100%;
+        height: var(--zia-card-top-gap);
+        -moz-window-dragging: drag;
+      }
+
+      & .zen-toolbar-background {
+        display: flex !important;
+        /* (solid, as Zen draws it, even with compact mode's see-through sidebar on: over
+           the site's own top bar, its bookmarks and window buttons were drawn on top of
+           the site's, where the blur behind didn't take) */
+        background: light-dark(#e9e9e9, #131313) !important;
+        backdrop-filter: none !important;
+      }
+    }
+
+    /* (Zen pulls the page up as the bar shows, to undo its push down: with
+       nothing pushed, that lifted the page under it, its top cut off) */
+    & #tabbrowser-tabpanels[has-toolbar-hovered] .browserContainer {
+      margin-top: 0 !important;
+    }
+  }
+}
+
+#zen-dragover-background {
+  display: none !important;
+}
+
+:root[zen-sidebar-expanded]:not([zia-space-name-in-list]) .zen-current-workspace-indicator:not(#zia-workspace-slot > .zen-current-workspace-indicator) {
+  display: none !important;
+}
+
+/* Compact mode's flyout sidebar (and top toolbar) is a touch see-through,
+   with the page blurred behind it; on by default, off in Zia's settings.
+   Zen paints it as an opaque base with two cross-fading colour layers (the
+   old space and the new one); the base goes and both layers are scaled
+   down, so switching spaces still fades as before. */
+
+/* Compact mode's flyout sidebar has Zia's card corners all round, as its hover
+   cards and pop-ups do. Zen sized them from the window's corner as it guesses
+   it (10px on macOS, 11px on Tahoe): where the window's real corner is rounder,
+   it cut into the flyout's corner beside it (top left, or top right with the
+   sidebar on the right), which came out rounder than the other three. Rounder
+   than the window's corner reaches, all four are the same. */
+:root[zen-compact-mode="true"]:not(#zia-none) #zen-toolbar-background {
+  &,
+  &::before,
+  &::after {
+    border-radius: calc(var(--zia-tab-card-radius) * var(--zia-squircle-grow)) !important;
+    corner-shape: var(--zia-squircle) !important;
+  }
+}
+
+/* A group being named in Advanced Tab Groups' own field (zen-renaming-group, where
+   Zen's naming is zen-renaming-tab): the flyout sidebar stays out while the name is
+   typed, as Zen keeps it out for its own, rather than sliding away mid-name. Only
+   while the field is there: a group deleted mid-name leaves the flag up. */
+@media -moz-pref("zen.view.compact.hide-tabbar") or -moz-pref("zen.view.use-single-toolbar") {
+  :root[zen-compact-mode="true"][zen-renaming-group="true"]:not([customizing], [inDOMFullscreen="true"], [supress-primary-adjustment="true"])
+    #navigator-toolbox:not([animate="true"]):has(#tab-label-input) {
+    translate: none !important;
+
+    & #titlebar {
+      transition: none !important;
+      visibility: visible !important;
+    }
+  }
+}
+
+@media (-moz-platform: windows) {
+  /* no window-button box in compact's top row: the real ones stay top right
+     (zia.uc.js), and a box left in the row pushed the space's name out */
+  :root[zen-compact-mode="true"] #zen-sidebar-top-buttons .titlebar-buttonbox-container {
+    display: none !important;
+  }
+
+  /* minimise, maximise and close as Windows (and Dia) draw them: a block on
+     hover, red behind close, following the window's corner (thanks to Zylaah) */
+  .titlebar-button,
+  .titlebar-button:hover,
+  .titlebar-button:hover:active {
+    background-image: none !important;
+  }
+
+  .titlebar-button:last-child {
+    border-top-right-radius: 5px !important;
+  }
+}
+
+/* Optionally, no block behind them: hovered, a button just dims, and dims a
+   little more while pressed */
+
+@media -moz-pref("layout.css.prefers-color-scheme.content-override", 1), (-moz-pref("layout.css.prefers-color-scheme.content-override", 2)) and (not (-moz-system-dark-theme)) {
+  :root:not([privatebrowsingmode="temporary"]) #urlbar[breakout-extend]:not([zia-classic]),
+  :root[zia-site-light="true"]:not([privatebrowsingmode="temporary"]) #zen-appcontent-navbar-wrapper #urlbar[breakout-extend]:not([zia-classic]) {
+    color-scheme: light !important;
+    color: rgb(28, 28, 30) !important;
+    --zia-urlbar-open-bg: rgb(248, 249, 250) !important;
+    --toolbar-field-color: rgb(28, 28, 30) !important;
+    --toolbar-field-focus-color: rgb(28, 28, 30) !important;
+    --urlbarView-highlight-background: rgba(28, 28, 30, 0.09) !important;
+    --urlbarView-highlight-color: rgb(28, 28, 30) !important;
+
+    & > .urlbar-background {
+      background: rgb(248, 249, 250) !important;
+      outline: none !important;
+      box-shadow: var(--zia-glass-edge-light), 0 16px 48px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    & .urlbar-input,
+    & .urlbarView,
+    & .urlbarView-title,
+    & .urlbarView-title strong {
+      color: rgb(28, 28, 30) !important;
+    }
+
+    & .urlbar-input::placeholder {
+      color: rgb(100, 103, 108) !important;
+      opacity: 1 !important;
+    }
+
+    & :is(.urlbarView-url, .urlbarView-action, .urlbarView-title-separator, .urlbarView-tags) {
+      color: rgb(90, 94, 100) !important;
+    }
+
+    & .urlbar-icon,
+    & .urlbarView-shortcutContent {
+      color: rgb(28, 28, 30) !important;
+      fill: currentColor !important;
+    }
+
+    & .urlbarView-row:hover {
+      background-color: rgba(28, 28, 30, 0.05) !important;
+    }
+
+    & .urlbarView-row[selected] {
+      background-color: rgba(28, 28, 30, 0.09) !important;
+    }
+  }
+}
+
+/* The pop-up's icons in its light look: the search glass by the typing and
+   the rows' globes and glasses stayed white */
+:is(:root[zia-light]:not([privatebrowsingmode="temporary"]) #urlbar, #urlbar#urlbar[zia-pop-site="light"])[breakout-extend]:not([zia-classic]) :is(#identity-icon, .urlbarView-favicon, .urlbarView-type-icon) {
+  fill: rgba(28, 28, 30, 0.72) !important;
+  fill-opacity: 1 !important;
+}
+
+/* and on the selected row, which Zen darkens for its white chip */
+:is(:root[zia-light]:not([privatebrowsingmode="temporary"]) #urlbar, #urlbar#urlbar[zia-pop-site="light"])[breakout-extend]:not([zia-classic]) .urlbarView-row[selected] {
+  & .urlbarView-favicon {
+    fill: rgba(28, 28, 30, 0.72) !important;
+  }
+
+  & .urlbarView-shortcutContent {
+    color: rgb(90, 94, 100) !important;
+  }
+}
+
+@media -moz-pref("layout.css.prefers-color-scheme.content-override", 1), (-moz-pref("layout.css.prefers-color-scheme.content-override", 2)) and (not (-moz-system-dark-theme)) {
+  :root:not([privatebrowsingmode="temporary"]) #urlbar#urlbar[breakout-extend]:not([zia-classic]):not([zia-pop-site="dark"]) :is(#identity-icon, .urlbarView-favicon, .urlbarView-type-icon) {
+    fill: rgba(28, 28, 30, 0.72) !important;
+    fill-opacity: 1 !important;
+  }
+
+  :root:not([privatebrowsingmode="temporary"]) #urlbar#urlbar[breakout-extend]:not([zia-classic]):not([zia-pop-site="dark"]) .urlbarView-row[selected] {
+    & .urlbarView-favicon {
+      fill: rgba(28, 28, 30, 0.72) !important;
+    }
+
+    & .urlbarView-shortcutContent {
+      color: rgb(90, 94, 100) !important;
+    }
+  }
+}
+
+#urlbar[breakout-extend]:not([zia-classic])[zen-floating-urlbar="true"] {
+  border-radius: calc(var(--zia-pop-radius) * var(--zia-squircle-grow)) !important;
+  corner-shape: var(--zia-squircle) !important;
+  --urlbarview-separator-color: transparent !important;
+  --urlbarView-separator-color: transparent !important;
+}
+
+/* With Zia's glass on, the floating bar's pop-up is glass as the toolbar's is, its edge
+   and lift on its own corners: once it listed anything, Zen drew it, without them */
+
+:root:not(#zia-none) .tabbrowser-tab[zia-morph] > .tab-stack > .tab-background {
+  margin-inline-start: var(--zia-morph-bg-start) !important;
+  margin-inline-end: var(--zia-morph-bg-end) !important;
+  transition: margin-inline-start 120ms ease-out, margin-inline-end 120ms ease-out !important;
+}
+
+:root:not(#zia-none) .tabbrowser-tab[zia-morph] > .tab-stack > .tab-content {
+  margin-inline-start: var(--zia-morph-content-start) !important;
+  margin-inline-end: var(--zia-morph-content-end) !important;
+  transition: margin-inline-start 120ms ease-out, margin-inline-end 120ms ease-out !important;
+}
+
+:root:not(#zia-none) .tabbrowser-tab[zia-morph-done] > .tab-stack > :is(.tab-background, .tab-content) {
+  transition: none !important;
+}
+
+:root:not(#zia-none) tab-group[split-view-group][zia-morph] > .tab-group-container {
+  margin-inline-start: var(--zia-morph-bg-start) !important;
+  margin-inline-end: var(--zia-morph-bg-end) !important;
+  transition: margin-inline-start 120ms ease-out, margin-inline-end 120ms ease-out !important;
+}
+
+:root:not(#zia-none) tab-group[split-view-group][zia-morph-done] > .tab-group-container {
+  transition: none !important;
+}
+
+/* ...and dropped, it eases out to its own width (zia.uc.js) */
+:root:not(#zia-none) .tabbrowser-tab[zia-morph-out] > .tab-stack > :is(.tab-background, .tab-content),
+:root:not(#zia-none) tab-group[split-view-group][zia-morph-out] > .tab-group-container {
+  transition: margin-inline-start 160ms ease-out, margin-inline-end 160ms ease-out !important;
+}
+
+/* The pop-up in the toolbar's colour, copied as it opened (the "Address bar
+   pop-up takes the toolbar's colour" option). Its text and rows follow the
+   colour, light or dark, whatever the theme. */
+:root:not(#zia-none) #urlbar#urlbar[breakout-extend][zia-pop-site]:not([zia-classic]) {
+  --zia-urlbar-open-bg: var(--zia-pop-site-bg) !important;
+
+  & > .urlbar-background {
+    background: var(--zia-pop-site-bg) !important;
+  }
+}
+
+:root:not(#zia-none) #urlbar#urlbar[breakout-extend][zia-pop-site="dark"]:not([zia-classic]) {
+  color-scheme: dark !important;
+  color: rgb(251, 251, 254) !important;
+  --toolbar-field-color: rgb(251, 251, 254) !important;
+  --toolbar-field-focus-color: rgb(251, 251, 254) !important;
+  --urlbarView-highlight-background: rgba(255, 255, 255, 0.1) !important;
+  --urlbarView-highlight-color: rgb(251, 251, 254) !important;
+
+  & > .urlbar-background {
+    outline: none !important;
+    box-shadow: var(--zia-glass-edge-dark), 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  & .urlbar-input,
+  & .urlbarView,
+  & .urlbarView-title,
+  & .urlbarView-title strong {
+    color: rgb(251, 251, 254) !important;
+  }
+
+  & .urlbar-input::placeholder {
+    color: rgba(251, 251, 254, 0.55) !important;
+    opacity: 1 !important;
+  }
+
+  & :is(.urlbarView-url, .urlbarView-action, .urlbarView-title-separator, .urlbarView-tags) {
+    color: rgba(251, 251, 254, 0.6) !important;
+  }
+
+  & .urlbar-icon,
+  & .urlbarView-shortcutContent {
+    color: rgb(251, 251, 254) !important;
+    fill: currentColor !important;
+  }
+
+  & .urlbarView-row:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  & .urlbarView-row[selected] {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* Light mode in Zen (a light space, or no space colour in light mode) gives
+   the pop-up the same light look, whatever the websites' own appearance
+   setting: it stayed dark there, under a light sidebar. The same look for
+   the pop-up in a light toolbar's colour. */
+:root[zia-light]:not([privatebrowsingmode="temporary"]) #urlbar[breakout-extend]:not([zia-classic]),
+:root:not(#zia-none) #urlbar#urlbar[breakout-extend][zia-pop-site="light"]:not([zia-classic]) {
+  color-scheme: light !important;
+  color: rgb(28, 28, 30) !important;
+  --toolbar-field-color: rgb(28, 28, 30) !important;
+  --toolbar-field-focus-color: rgb(28, 28, 30) !important;
+  --urlbarView-highlight-background: rgba(28, 28, 30, 0.09) !important;
+  --urlbarView-highlight-color: rgb(28, 28, 30) !important;
+
+  & > .urlbar-background {
+    outline: none !important;
+    box-shadow: var(--zia-glass-edge-light), 0 16px 48px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  & .urlbar-input,
+  & .urlbarView,
+  & .urlbarView-title,
+  & .urlbarView-title strong {
+    color: rgb(28, 28, 30) !important;
+  }
+
+  & .urlbar-input::placeholder {
+    color: rgb(100, 103, 108) !important;
+    opacity: 1 !important;
+  }
+
+  & :is(.urlbarView-url, .urlbarView-action, .urlbarView-title-separator, .urlbarView-tags) {
+    color: rgb(90, 94, 100) !important;
+  }
+
+  & .urlbar-icon,
+  & .urlbarView-shortcutContent {
+    color: rgb(28, 28, 30) !important;
+    fill: currentColor !important;
+  }
+
+  & .urlbarView-row:hover {
+    background-color: rgba(28, 28, 30, 0.05) !important;
+  }
+
+  & .urlbarView-row[selected] {
+    background-color: rgba(28, 28, 30, 0.09) !important;
+  }
+}
+
+:root[zia-light]:not([privatebrowsingmode="temporary"]) #urlbar[breakout-extend]:not([zia-classic]) {
+  --zia-urlbar-open-bg: rgb(248, 249, 250) !important;
+
+  & > .urlbar-background {
+    background: rgb(248, 249, 250) !important;
+  }
+}
+
+:root:not(#zia-none) #urlbar#urlbar[breakout-extend][zia-pop-site="light"]:not([zia-classic]) .urlbarView-row[selected] .urlbarView-shortcutContent {
+  fill: rgb(28, 28, 30) !important;
+}
+
+/* Optionally the pop-up is a touch see-through, with the page blurred
+   behind it. Whichever colour it has (dark, light or the site's) comes
+   from --zia-urlbar-open-bg, so this works with all of them. */
+
+/* the ✕ Zia adds to Zen's toasts (28b-toast-close.js) */
+#zen-toast-container .zen-toast .zia-toast-close {
+  appearance: none !important;
+  flex: none;
+  width: 20px !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.12) url("chrome://sine/content/zia-flat/icons/close.svg") center / 10px no-repeat !important;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: currentColor;
+  stroke: currentColor;
+  box-shadow: none !important;
+  outline: none !important;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+#zen-toast-container .zen-toast .zia-toast-close:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  opacity: 1;
+}
+
+/* Light spaces: a space whose colour is light (Zen marks the window
+   zen-should-be-dark-mode="false" and gives its sidebar dark text). Zia
+   drew the sidebar for dark spaces only, white text and white-tinted
+   surfaces, which on a pale space was white on cream. Here the sidebar's
+   ink is dark and its surfaces light, as in Dia's light mode: the selected
+   tab a white card, hovers and edges a faint shade of black. A window
+   with no space colour in light mode is drawn the same way (zia-light,
+   25-sidebar-paint-and-window-buttons.js). */
+/* On Windows with its see-through window (Mica or Acrylic), Zen leaves the window
+   clear under the space's colour, so a light space showed whatever was behind it:
+   white over a white app, dark (its dark text on it) over the desktop, and the light
+   look only seemed to work some of the time. A light space has a light base under
+   its colour there, so it's light whatever's behind, a touch of the material still
+   showing through. */
+@media (-moz-platform: windows) {
+  :root[zia-light]:not([privatebrowsingmode="temporary"]):not(#zia-none) #zen-main-app-wrapper {
+    background: rgba(246, 246, 248, 0.86) !important;
+  }
+}
+
+:root[zia-light]:not(#zia-none):not(#zia-none-2) {
+  --zia-sidebar-ink: rgb(28, 28, 32);
+  --zia-active-tab-bg: rgba(255, 255, 255, 0.78);
+  /* an open folder a shade darker than the sidebar, as in Dia, with its
+     open tab the same white card as anywhere else (it went lighter) */
+  --zia-active-tab-bg-folder: rgba(255, 255, 255, 0.82);
+  --zia-tab-hover-bg: rgba(0, 0, 0, 0.055);
+  --zia-active-glow-color: rgba(0, 0, 0, 0.035);
+  --zia-folder-mark-color: rgba(0, 0, 0, 0.6);
+  /* essentials a firmer white than the dark spaces' faint wash, and the
+     fine edge round tabs, folders and essentials a shade of black rather
+     than white, which went nowhere on cream */
+  --zia-essential-bg: rgba(255, 255, 255, 0.5);
+  --zia-folder-hover-bg: rgba(0, 0, 0, 0.05);
+  --zia-shine-layers:
+    linear-gradient(to right, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.06) 35%, rgba(0, 0, 0, 0.06) 65%, rgba(0, 0, 0, 0.01)),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.06) 35%, rgba(0, 0, 0, 0.06) 65%, rgba(0, 0, 0, 0.01));
+  --zia-tab-shine-layers: linear-gradient(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.07));
+  --zia-shine-row-ink: rgba(0, 0, 0, 0.05);
+  /* before a site's colour is known, the toolbar (and a page still
+     loading) are light rather than near-black, which flashed on every load */
+  --zia-fallback-bg: #f6f6f8;
+  --zia-page-loading-bg: #ffffff;
+
+  /* the music card a white card, as the selected tab is (and its solid shade,
+     which the downloads take, over light grey whatever the system's mode: in
+     dark mode, the near-black under it turned it a muddy grey) */
+  --zia-media-bg: var(--zia-active-tab-bg);
+  --zia-media-card-base: rgb(235, 235, 235);
+
+  /* tab names: the rest a little softer, the open one full */
+  & .tabbrowser-tab:not([zen-essential]) .tab-label-container {
+    color: color-mix(in srgb, var(--zia-sidebar-ink) 76%, transparent) !important;
+  }
+
+  & .tabbrowser-tab:not([zen-essential])[visuallyselected] .tab-label-container {
+    color: var(--zia-sidebar-ink) !important;
+  }
+
+  /* (in compact mode's flyout, the rest a little stronger: there the sidebar is
+     nearly white and see-through, which draws its text thinner, and the softened
+     names read faint) */
+  &[zen-compact-mode="true"] .tabbrowser-tab:not([zen-essential], [visuallyselected]) .tab-label-container {
+    color: color-mix(in srgb, var(--zia-sidebar-ink) 90%, transparent) !important;
+  }
+
+  /* the selected tab's glow, as a light space has it: light can't glow on
+     white, so a soft shadow lifts the white card off the sidebar instead
+     (gone with the glow, zia.tabs.no-glow) */
+  & .tabbrowser-tab:not([zen-essential])[visuallyselected] > .tab-stack > .tab-background {
+    box-shadow:
+      0 0 0 0.5px rgba(0, 0, 0, 0.06),
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      0 4px 14px var(--zia-light-tab-lift, rgba(0, 0, 0, 0.08)) !important;
+  }
+
+  & .tabbrowser-tab:not([zen-essential], [visuallyselected]):hover > .tab-stack > .tab-background {
+    background: var(--zia-tab-hover-bg) !important;
+  }
+
+  /* folder names, and coloured ones tinted towards dark rather than white */
+  & :is(zen-folder, tab-group:not([split-view-group])) > .tab-group-label-container > label {
+    color: var(--zia-sidebar-ink) !important;
+  }
+
+  & :is(zen-folder[zia-folder-color], tab-group:not([split-view-group])) > .tab-group-label-container > label {
+    color: color-mix(in srgb, var(--zia-folder-swatch, var(--zia-sidebar-ink)) 70%, var(--zia-sidebar-ink)) !important;
+  }
+
+  & zen-folder > .tab-group-label-container > .zia-folder-close {
+    fill: var(--zia-sidebar-ink) !important;
+    color: var(--zia-sidebar-ink) !important;
+  }
+
+  /* the space's name, tinted towards dark */
+  & :is(#zia-workspace-slot .zen-current-workspace-indicator-name, #zia-space-label) {
+    color: var(--zia-sidebar-ink) !important;
+  }
+
+  &[zia-space-colored="true"] :is(#zia-workspace-slot .zen-current-workspace-indicator-name, #zia-space-label) {
+    color: color-mix(in srgb, var(--zen-primary-color, var(--zia-sidebar-ink)) var(--zia-space-name-tint), var(--zia-sidebar-ink)) !important;
+  }
+
+  & #zia-workspace-slot > .zen-current-workspace-indicator > #zia-space-label:hover {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+  }
+
+  /* essentials: the open one a white card */
+  & .tabbrowser-tab[zen-essential][visuallyselected] > .tab-stack > .tab-background {
+    --zen-essential-tab-selected-bg: rgba(255, 255, 255, 0.82) !important;
+    --zen-essential-tab-selected-bg-hover: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+
+    &::before {
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+
+  /* tab numbers: dark outlines and digits */
+  & .tabbrowser-tab > .tab-stack > .tab-content > .zia-tab-number:not([zia-target]) {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.62);
+  }
+
+  & .tabbrowser-tab[visuallyselected] > .tab-stack > .tab-content > .zia-tab-number:not([zia-target]) {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  & :is(.tabbrowser-tab[zen-essential], :root:not([zen-sidebar-expanded="true"]) .tabbrowser-tab) > .tab-stack > .tab-content > .zia-tab-number:not([zia-target]) {
+    background-color: rgba(255, 255, 255, 0.72);
+  }
+
+  /* the sound badge on a tab's icon (an essential's, a pinned one's): a white
+     disc for the dark bars, as the selected tab is a white card (the dark disc
+     sat heavy on the pale tiles, with the bars dark on it) */
+  & .tab-icon-overlay:not([crashed]):is([soundplaying], [muted], [activemedia-blocked]) {
+    fill: var(--zia-sidebar-ink) !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    outline-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16) !important;
+
+    &[muted] {
+      fill: color-mix(in srgb, var(--zia-sidebar-ink) 80%, transparent) !important;
+    }
+
+    &:hover {
+      background-color: rgb(255, 255, 255) !important;
+    }
+  }
+
+  /* the line above the tabs, the space dots, the sound bars' hover */
+  & .pinned-tabs-container-separator toolbarseparator {
+    background: rgba(0, 0, 0, 0.12) !important;
+  }
+
+  & #zen-workspaces-button toolbarbutton {
+    & > .zen-workspace-icon[no-icon="true"] {
+      background: rgba(0, 0, 0, 0.22) !important;
+    }
+
+    &[active="true"] > .zen-workspace-icon[no-icon="true"] {
+      background: rgba(0, 0, 0, 0.75) !important;
+    }
+
+    &:hover:not([active="true"]) > .zen-workspace-icon[no-icon="true"] {
+      background: rgba(0, 0, 0, 0.42) !important;
+    }
+  }
+
+  & .zia-tab-sound:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  /* an empty folder's "Drag tabs here" slot */
+  &[zen-sidebar-expanded="true"] zen-folder[zia-empty] {
+    --zia-slot-dash: rgba(0, 0, 0, 0.10);
+    --zia-slot-ink: rgba(0, 0, 0, 0.45);
+    --zia-slot-glint: rgba(0, 0, 0, 0.85);
+  }
+
+  /* the buttons on tabs and folders (close, unload, reset) in the dark
+     ink, as soft as the folders' own close mark */
+  & :is(.tabbrowser-tab, zen-folder) .tab-reset-button,
+  & .tabbrowser-tab .tab-close-button {
+    fill: var(--zia-sidebar-ink) !important;
+    fill-opacity: var(--zia-folder-mark-opacity) !important;
+    color: var(--zia-sidebar-ink) !important;
+  }
+
+  & :is(.tabbrowser-tab, zen-folder) :is(.tab-reset-button, .tab-close-button):hover {
+    background-color: rgba(0, 0, 0, 0.07) !important;
+  }
+
+  /* essentials: a fine dark edge round each tile, or with Zia's glass on, the
+     glass's own light edge, as the dark spaces have (the plain line took its
+     place, so light spaces had no glass on their essentials) */
+  & .tabbrowser-tab[zen-essential]:not([visuallyselected]) > .tab-stack > .tab-background {
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.07) !important
+  }
+
+  & .tabbrowser-tab[zen-essential]:not([visuallyselected]):hover > .tab-stack > .tab-background {
+    background: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  /* the music card: white, with a fine edge and the dark ink */
+  & #zen-media-controls-toolbar {
+    & .zen-media-card {
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.08) !important
+
+      /* (with Zia's glass on, the glass's light edge, as the essentials) */
+    }
+
+    & .zen-media-title {
+      color: var(--zia-sidebar-ink) !important;
+    }
+
+    & :is(.zen-media-artist, .zen-media-current-time, .zen-media-duration) {
+      color: color-mix(in srgb, var(--zia-sidebar-ink) 58%, transparent) !important;
+    }
+
+    & .toolbarbutton-1,
+    & .zen-media-playpause-button > .toolbarbutton-icon {
+      color: color-mix(in srgb, var(--zia-sidebar-ink) 88%, transparent) !important;
+      fill: color-mix(in srgb, var(--zia-sidebar-ink) 88%, transparent) !important;
+    }
+
+    & .toolbarbutton-1:hover > .toolbarbutton-icon {
+      background-color: rgba(0, 0, 0, 0.07) !important;
+    }
+
+    & .zen-media-progress-bar {
+      &::-moz-range-track {
+        background: rgba(0, 0, 0, 0.14) !important;
+      }
+
+      &::-moz-range-progress,
+      &::-moz-range-thumb {
+        background: var(--zia-sidebar-ink) !important;
+      }
+    }
+
+    & .zia-ring-track {
+      stroke: rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  /* the glass folder and box: a deeper tint than the dark spaces' pale one
+     when it takes the space's colour, and a fine dark edge to hold it
+     against the cream */
+  & zen-folder:not([zia-folder-color]) > .tab-group-label-container .zia-fi {
+    --fi-accent: color-mix(in srgb, var(--zen-primary-color, #5ab9f5) 78%, rgb(70, 72, 80));
+  }
+
+  & .zia-fi {
+    filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.32)) drop-shadow(0 0.5px 1px rgba(0, 0, 0, 0.1));
+  }
+}
+
+/* Features are fixed at build time; no Zia preferences or runtime polling. */
+:root {
+  --zia-card-radius: 0px;
+  --zia-media-bg: color-mix(in srgb, var(--zen-primary-color, #202024) 35%, #171719);
+  --zia-media-glow-a: #50b2e8;
+  --zia-media-glow-b: #50b2e8;
+  --zia-glass-edge: none;
+  --zia-glass-pop-lift: none;
+  --zia-glass-edge-thick: none;
+  --zia-glass-edge-dark: none;
+  --zia-glass-edge-light: none;
+  --zia-sidebar-ink: light-dark(#26262a, #fbfbfb);
+}
+
+/* The independent runtime supplies the title and workspace slot only.
+   Everything else uses Zen's normal address editing and tab behaviours. */
+#zen-media-controls-toolbar .zen-media-card::before { display: none !important; }
+/* Flat folders keep native collapse behaviour, without Zia's masked shine. */
+:root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4)
+  :is(zen-folder, tab-group:not([split-view-group]))::after { content: none !important; }
+#zen-media-controls-toolbar .zia-ring-fill { stroke: #50b2e8; }
+.zia-space-svg { width: 16px; height: 16px; object-fit: contain; }
+zen-download-animation { display: none !important; }
+.zen-workspace-normal-tabs-section { padding-bottom: 4px !important; }
+#zen-media-controls-toolbar .zen-media-card,
+#zen-media-controls-toolbar .zen-media-progress-hbox,
+#zen-media-controls-toolbar .zen-media-focus-button,
+#zen-media-controls-toolbar .toolbarbutton-1 {
+  transition-timing-function: ease-out !important;
+}
+/* No custom drag proxy, hover previews, special folder collapse or light effects. */
+#tabbrowser-tabs { --zia-tab-right-fix: 0px; --zia-folder-right-fix: 0px; }
+
 /* Local flat variant. Chrome stylesheet only: does not enter web documents.
    Keep layout, colour, focus outlines and functional icon masks intact. */
 :root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
@@ -81,5 +4757,61 @@
     animation: none !important;
     filter: none !important;
     transition: none !important;
+  }
+}
+
+/* Sidebar Expand on Hover (StormAnon): let that mod own the sidebar width,
+   clipping and transitions. Zia's !important page margin otherwise replaces
+   the collapsed rail's reserved space and puts the page over its hit target. */
+:root[zia-flat-autoexpand]:not([sizemode="fullscreen"]):not([zen-little-window="true"]):not([inDOMFullscreen="true"]):not([popup-window]):not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
+  &:not(:has(#navigator-toolbox[zen-right-side="true"])) #zen-appcontent-wrapper {
+    margin-left: var(--collapsed-tab-bar-width) !important;
+    margin-right: var(--zia-card-gap) !important;
+  }
+  &:has(#navigator-toolbox[zen-right-side="true"]) #zen-appcontent-wrapper {
+    margin-left: var(--zia-card-gap) !important;
+    margin-right: var(--collapsed-tab-bar-width) !important;
+  }
+  & #zia-workspace-slot { min-width: 0; overflow: hidden; }
+
+  /* Mirror the mod's expanded-state conditions, including open popups and
+     dragging. Do not collapse controls just because the pointer left a menu. */
+  & #navigator-toolbox:not(:hover, [has-popup-menu="true"], [movingtab], [flash-popup],
+      :has(#urlbar[open], toolbarbutton[open="true"]:not(#zen-sidepanel-button))) {
+    & #zia-space-label .zia-space-name,
+    & #urlbar :is(#zia-url-title, #zia-url-plain) {
+      display: none !important;
+    }
+    /* Zen now uses classes for media internals, whereas the hover mod 1.0.0
+       targets their old IDs. Keep only the artwork while the rail is closed. */
+    & #zen-media-controls-toolbar {
+      width: calc(var(--collapsed-tab-bar-width) - 6px) !important;
+      min-width: 0 !important;
+    }
+    & .zen-media-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: var(--zia-media-ring-size) !important;
+      padding: 0 !important;
+    }
+    & .zen-media-main-vbox {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+    & :is(.zen-media-info-vbox, .zen-media-progress-hbox, .zen-media-playpause-button,
+          .zen-media-mute-button, .zen-media-previoustrack-button, .zen-media-nexttrack-button,
+          .zen-media-pip-button, .zen-media-close-button) {
+      display: none !important;
+    }
+    & .zen-media-focus-button {
+      min-width: 0 !important;
+      width: var(--zia-media-art-size) !important;
+      height: var(--zia-media-art-size) !important;
+      transform: none !important;
+    }
+  }
+  @media -moz-pref("mod.autoexpand.essentials_vertical") {
+    & .zen-essentials-container { grid-template-columns: 1fr !important; }
   }
 }

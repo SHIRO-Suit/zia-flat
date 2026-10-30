@@ -1,0 +1,32 @@
+/* Features are fixed at build time; no Zia preferences or runtime polling. */
+:root {
+  --zia-card-radius: 0px;
+  --zia-media-bg: color-mix(in srgb, var(--zen-primary-color, #202024) 35%, #171719);
+  --zia-media-glow-a: #50b2e8;
+  --zia-media-glow-b: #50b2e8;
+  --zia-glass-edge: none;
+  --zia-glass-pop-lift: none;
+  --zia-glass-edge-thick: none;
+  --zia-glass-edge-dark: none;
+  --zia-glass-edge-light: none;
+  --zia-sidebar-ink: light-dark(#26262a, #fbfbfb);
+}
+
+/* The independent runtime supplies the title and workspace slot only.
+   Everything else uses Zen's normal address editing and tab behaviours. */
+#zen-media-controls-toolbar .zen-media-card::before { display: none !important; }
+/* Flat folders keep native collapse behaviour, without Zia's masked shine. */
+:root:not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4)
+  :is(zen-folder, tab-group:not([split-view-group]))::after { content: none !important; }
+#zen-media-controls-toolbar .zia-ring-fill { stroke: #50b2e8; }
+.zia-space-svg { width: 16px; height: 16px; object-fit: contain; }
+zen-download-animation { display: none !important; }
+.zen-workspace-normal-tabs-section { padding-bottom: 4px !important; }
+#zen-media-controls-toolbar .zen-media-card,
+#zen-media-controls-toolbar .zen-media-progress-hbox,
+#zen-media-controls-toolbar .zen-media-focus-button,
+#zen-media-controls-toolbar .toolbarbutton-1 {
+  transition-timing-function: ease-out !important;
+}
+/* No custom drag proxy, hover previews, special folder collapse or light effects. */
+#tabbrowser-tabs { --zia-tab-right-fix: 0px; --zia-folder-right-fix: 0px; }

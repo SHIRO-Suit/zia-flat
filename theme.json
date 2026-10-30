@@ -1,15 +1,16 @@
 {
   "id": "zia-flat",
-  "name": "Zia Flat",
-  "description": "A flat, square-cornered companion style for Zia: no shadows, glow or backdrop blur.",
+  "name": "Zia Flat Lite",
+  "description": "Standalone flat Zen interface: Zia-inspired sidebar, address bar, media player and download animation.",
   "author": "SHIRO-Suit",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "homepage": "https://github.com/SHIRO-Suit/zia-flat",
   "readme": "https://raw.githubusercontent.com/SHIRO-Suit/zia-flat/main/README.md",
   "createdAt": "2026-10-26",
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-30",
   "fork": ["zen"],
   "tags": ["chrome", "flat", "squared", "zia"],
   "ai": "yes",
-  "style": { "chrome": "chrome.css" }
+  "style": { "chrome": "chrome.css" },
+  "scripts": { "zia-flat.uc.js": { "include": ["chrome://browser/content/browser.xhtml"] } }
 }

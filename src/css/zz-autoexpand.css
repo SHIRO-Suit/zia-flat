@@ -1,0 +1,55 @@
+/* Sidebar Expand on Hover (StormAnon): let that mod own the sidebar width,
+   clipping and transitions. Zia's !important page margin otherwise replaces
+   the collapsed rail's reserved space and puts the page over its hit target. */
+:root[zia-flat-autoexpand]:not([sizemode="fullscreen"]):not([zen-little-window="true"]):not([inDOMFullscreen="true"]):not([popup-window]):not(#zia-none):not(#zia-none-2):not(#zia-none-3):not(#zia-none-4) {
+  &:not(:has(#navigator-toolbox[zen-right-side="true"])) #zen-appcontent-wrapper {
+    margin-left: var(--collapsed-tab-bar-width) !important;
+    margin-right: var(--zia-card-gap) !important;
+  }
+  &:has(#navigator-toolbox[zen-right-side="true"]) #zen-appcontent-wrapper {
+    margin-left: var(--zia-card-gap) !important;
+    margin-right: var(--collapsed-tab-bar-width) !important;
+  }
+  & #zia-workspace-slot { min-width: 0; overflow: hidden; }
+
+  /* Mirror the mod's expanded-state conditions, including open popups and
+     dragging. Do not collapse controls just because the pointer left a menu. */
+  & #navigator-toolbox:not(:hover, [has-popup-menu="true"], [movingtab], [flash-popup],
+      :has(#urlbar[open], toolbarbutton[open="true"]:not(#zen-sidepanel-button))) {
+    & #zia-space-label .zia-space-name,
+    & #urlbar :is(#zia-url-title, #zia-url-plain) {
+      display: none !important;
+    }
+    /* Zen now uses classes for media internals, whereas the hover mod 1.0.0
+       targets their old IDs. Keep only the artwork while the rail is closed. */
+    & #zen-media-controls-toolbar {
+      width: calc(var(--collapsed-tab-bar-width) - 6px) !important;
+      min-width: 0 !important;
+    }
+    & .zen-media-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: var(--zia-media-ring-size) !important;
+      padding: 0 !important;
+    }
+    & .zen-media-main-vbox {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+    & :is(.zen-media-info-vbox, .zen-media-progress-hbox, .zen-media-playpause-button,
+          .zen-media-mute-button, .zen-media-previoustrack-button, .zen-media-nexttrack-button,
+          .zen-media-pip-button, .zen-media-close-button) {
+      display: none !important;
+    }
+    & .zen-media-focus-button {
+      min-width: 0 !important;
+      width: var(--zia-media-art-size) !important;
+      height: var(--zia-media-art-size) !important;
+      transform: none !important;
+    }
+  }
+  @media -moz-pref("mod.autoexpand.essentials_vertical") {
+    & .zen-essentials-container { grid-template-columns: 1fr !important; }
+  }
+}
