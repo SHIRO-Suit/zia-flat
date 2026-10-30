@@ -5,6 +5,7 @@
     root.style.setProperty("--zia-media-glow-b", "#50b2e8");
     cleanups.push(() => root.removeAttribute("zia-flat-lite"));
     setup("theme", watchTheme);
+    setup("auto-expand compatibility", watchAutoExpandCompatibility);
     setup("sidebar", watchWorkspaceLabel);
     setup("address bar", watchAddressTitle);
     setup("media player", watchMedia);

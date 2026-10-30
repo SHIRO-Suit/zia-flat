@@ -105,3 +105,17 @@ test('downloads do not animate startup history and unregister their native view'
   fresh.succeeded=true;view.onDownloadChanged(fresh);assert.equal(button.getAttribute('zia-downloading'),null);
   for(const cleanup of e.cleanups)cleanup();assert.equal(removed,1);
 });
+
+test('hover compatibility follows active stylesheet rather than stale preferences', () => {
+  let width = 'clamp(160px, 250px, 9999px)';
+  const e = environment({ getComputedStyle: () => ({getPropertyValue: () => width}) });
+  vm.runInContext(read('15-autoexpand.js')+'\nwatchAutoExpandCompatibility();',e.context);
+  assert.equal(e.root.getAttribute('zia-flat-autoexpand'),'');
+  width = ''; // Mod disabled or a compact/fullscreen mode where it is inactive.
+  e.observers[0].fn();
+  assert.equal(e.root.getAttribute('zia-flat-autoexpand'),null);
+  width = '250px';e.observers[0].fn();
+  assert.equal(e.root.getAttribute('zia-flat-autoexpand'),'');
+  for (const cleanup of e.cleanups) cleanup();
+  assert.equal(e.root.getAttribute('zia-flat-autoexpand'),null);
+});

@@ -15,6 +15,9 @@ La branche `main` reste la surcouche CSS 0.1.1, qui nécessite Zia.
 - Animation du fichier vers le bouton de téléchargement/bibliothèque et
   progression des téléchargements.
 - Apparence claire/sombre suivant le workspace et Zen.
+- Compatibilité avec Sidebar Expand on Hover : espace réservé à la sidebar
+  repliée, noms masqués et lecteur réduit à sa pochette hors survol. Les menus
+  ouverts et le drag conservent l'état déplié défini par le mod.
 
 ## Ce qui est retiré
 
